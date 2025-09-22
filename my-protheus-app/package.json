@@ -10,7 +10,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~17.3.12",
+    "@angular/animations": "~17.3.9",
     "@angular/common": "~17.3.9",
     "@angular/compiler": "~17.3.9",
     "@angular/core": "~17.3.9",
@@ -23,8 +23,7 @@
     "@po-ui/ng-templates": "^17.1.0",
     "@po-ui/style": "^17.1.0",
     "@totvs/common-assets": "^1.1.1",
-    "@totvs/po-theme": "^17.26.28",
-    "@totvs/protheus-lib-core": "^19.0.2",
+    "@totvs/po-theme": "^17.1.0",
     "core-js": "^3.13.0",
     "rxjs": "~7.8.1",
     "rxjs-compat": "^6.6.3",

@@ -7,7 +7,14 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss"
+          "style": "scss",
+          "standalone": false
+        },
+        "@schematics/angular:directive": {
+          "standalone": false
+        },
+        "@schematics/angular:pipe": {
+          "standalone": false
         }
       },
       "root": "",
@@ -15,11 +22,11 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "outputPath": "dist/my-protheus-app",
             "index": "src/index.html",
-            "main": "src/main.ts",
+            "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],
@@ -30,9 +37,8 @@
               "src/assets"
             ],
             "styles": [
-              "node_modules/@totvs/po-theme/css/po-theme-default-variables.min.css",
-              "node_modules/@totvs/po-theme/css/po-theme-default.min.css",
-              "node_modules/@po-ui/style/css/po-theme-core.min.css"
+              "./node_modules/@po-ui/style/css/po-theme-default.min.css",
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -41,8 +47,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "4mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -92,9 +98,8 @@
               "src/assets"
             ],
             "styles": [
-              "node_modules/@totvs/po-theme/css/po-theme-default-variables.min.css",
-              "node_modules/@totvs/po-theme/css/po-theme-default.min.css",
-              "node_modules/@po-ui/style/css/po-theme-core.min.css"
+              "./node_modules/@po-ui/style/css/po-theme-default.min.css",
+              "src/styles.scss"
             ],
             "scripts": []
           }
@@ -103,6 +108,6 @@
     }
   },
   "cli": {
-    "analytics": "7c8c8fe7-a4b7-4a08-9e6e-edccb011627c"
+    "analytics": "d365ef17-c077-4b8c-8075-0a135f6e0d67"
   }
 }
