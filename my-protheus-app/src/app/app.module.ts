@@ -6,10 +6,12 @@ import { AppComponent } from './app.component';
 import { PoModule } from '@po-ui/ng-components';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { HeaderComponent } from './header/header.component'; // <- Import do header
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HeaderComponent // <- Declarar aqui
   ],
   imports: [
     BrowserModule,
