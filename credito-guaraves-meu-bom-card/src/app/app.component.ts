@@ -10,7 +10,9 @@ import { PoMenuItem } from '@po-ui/ng-components';
 export class AppComponent {
 
   readonly menus: Array<PoMenuItem> = [
-    { label: 'Crédito Guaraves', action: this.onClick.bind(this) }
+    { label: 'Crédito Guaraves', action: this.onClick.bind(this) },
+    { label: 'Cadastrar Novo Colaborador', action: this.onClick.bind(this) },
+    { label: 'Exportar Relatório', action: this.onClick.bind(this) },
   ];
 
   private onClick() {
