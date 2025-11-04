@@ -2,11 +2,12 @@
     p-title="Boas vindas ao Crédito Guaraves" [p-filters]="[{ property: 'name' }]"> 
 </po-page-dynamic-search> -->
 <po-page-dynamic-search
-    p-title="Lista de Colaboradores"
+    p-title="Boas vindas ao Crédito Guaraves"
     [p-filters]="[
         { property: 'nome', label: 'Nome', gridColumns: 6 },
         { property: 'matricula', label: 'Matrícula', gridColumns: 6 }
     ]"
     (p-quick-search)="onQuickSearch($event)"
     (p-advanced-search)="onAdvancedSearch($event)">
+    <colaboradores-list></colaboradores-list>
 </po-page-dynamic-search>

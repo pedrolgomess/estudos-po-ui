@@ -10,11 +10,13 @@ import { PoTableModule } from '@po-ui/ng-components';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { SamplePoPageDynamicSearchBasicComponent } from './sample-po-page-dynamic-search-basic/sample-po-page-dynamic-search-basic.component';
+import {ColaboradoresListComponent} from './colaboradores-list/colaboradores-list.component'
 
 @NgModule({
   declarations: [
     AppComponent,
-    SamplePoPageDynamicSearchBasicComponent
+    SamplePoPageDynamicSearchBasicComponent,
+    ColaboradoresListComponent
   ],
   imports: [
     BrowserModule,

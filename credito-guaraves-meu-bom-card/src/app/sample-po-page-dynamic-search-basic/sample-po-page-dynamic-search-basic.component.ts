@@ -1,42 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'sample-po-page-dynamic-search-basic',
-  templateUrl: './sample-po-page-dynamic-search-basic.component.html',
-  //styleUrls: ['./sample-po-page-dynamic-search-basic.component.css']
+  templateUrl: './sample-po-page-dynamic-search-basic.component.html'
 })
 export class SamplePoPageDynamicSearchBasicComponent {
 
-  colaboradores = [
-    { matricula: '001', nome: 'João Silva', cargo: 'Analista', email: 'joao@empresa.com' },
-    { matricula: '002', nome: 'Maria Souza', cargo: 'Gerente', email: 'maria@empresa.com' },
-    { matricula: '003', nome: 'Carlos Lima', cargo: 'Assistente', email: 'carlos@empresa.com' },
-    { matricula: '004', nome: 'Fernanda Oliveira', cargo: 'Coordenadora', email: 'fernanda@empresa.com' },
-    { matricula: '005', nome: 'Pedro Lucas', cargo: 'Desenvolvedor', email: 'pedro@empresa.com' }
-  ];
-
-  colaboradoresFiltrados = [...this.colaboradores];
-
-  columns = [
-    { property: 'matricula', label: 'Matrícula', width: '15%' },
-    { property: 'nome', label: 'Nome', width: '25%' },
-    { property: 'cargo', label: 'Cargo', width: '25%' },
-    { property: 'email', label: 'E-mail', width: '35%' }
-  ];
+  @Output() quickSearch = new EventEmitter<string>();
+  @Output() advancedSearch = new EventEmitter<any>();
 
   onQuickSearch(search: string) {
-    const termo = search.toLowerCase();
-    this.colaboradoresFiltrados = this.colaboradores.filter(col =>
-      col.nome.toLowerCase().includes(termo) ||
-      col.matricula.includes(termo)
-    );
+    this.quickSearch.emit(search);
   }
 
   onAdvancedSearch(filters: any) {
-    this.colaboradoresFiltrados = this.colaboradores.filter(col => {
-      const nomeOk = !filters.nome || col.nome.toLowerCase().includes(filters.nome.toLowerCase());
-      const matriculaOk = !filters.matricula || col.matricula.includes(filters.matricula);
-      return nomeOk && matriculaOk;
-    });
+    this.advancedSearch.emit(filters);
   }
 }
