@@ -1,22 +1,13 @@
 import { Component } from '@angular/core';
-import { PoMenuItem } from '@po-ui/ng-components';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'sample-po-page-dynamic-search-basic',
+  templateUrl: './sample-po-page-dynamic-search-basic.component.html',
+  //styleUrls: ['./sample-po-page-dynamic-search-basic.component.css']
 })
-export class AppComponent {
+export class SamplePoPageDynamicSearchBasicComponent {
 
-  readonly menus: Array<PoMenuItem> = [
-    { label: 'Cadastrar Novo Colaborador', action: this.onClick.bind(this) },
-    { label: 'Exportar Relatório', action: this.onClick.bind(this) },
-  ];
-
-  private onClick() {
-    alert('Clicked in menu item');
-  }
-   colaboradores = [
+  colaboradores = [
     { matricula: '001', nome: 'João Silva', cargo: 'Analista', email: 'joao@empresa.com' },
     { matricula: '002', nome: 'Maria Souza', cargo: 'Gerente', email: 'maria@empresa.com' },
     { matricula: '003', nome: 'Carlos Lima', cargo: 'Assistente', email: 'carlos@empresa.com' },
