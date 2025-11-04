@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { ColaboradoresListComponent } from '../colaboradores-list/colaboradores-list.component';
 
 @Component({
   selector: 'sample-po-page-dynamic-search-basic',
@@ -6,14 +7,18 @@ import { Component, EventEmitter, Output } from '@angular/core';
 })
 export class SamplePoPageDynamicSearchBasicComponent {
 
-  @Output() quickSearch = new EventEmitter<string>();
-  @Output() advancedSearch = new EventEmitter<any>();
+  @ViewChild(ColaboradoresListComponent)
+  listaColaboradores!: ColaboradoresListComponent;
 
   onQuickSearch(search: string) {
-    this.quickSearch.emit(search);
+    if (this.listaColaboradores) {
+      this.listaColaboradores.filtrarPorBuscaRapida(search);
+    }
   }
 
   onAdvancedSearch(filters: any) {
-    this.advancedSearch.emit(filters);
+    if (this.listaColaboradores) {
+      this.listaColaboradores.filtrarBuscaAvancada(filters);
+    }
   }
 }
