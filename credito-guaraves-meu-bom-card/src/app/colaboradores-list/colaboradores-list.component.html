@@ -2,21 +2,31 @@
     [p-hide-select-all]="true"
     p-property-link="url"
     [p-items]="colaboradoresFiltrados"
-    
+    [p-actions]="actions"
   >
     <ng-template p-list-view-content-template let-item [p-title]="formatTitle">
       <div class="po-row">
         <po-info class="po-lg-4" p-label="Matrícula" [p-value]="item.matricula"></po-info>
 
         <po-info class="po-lg-4" p-label="Cargo" [p-value]="item.cargo"></po-info>
+
+        <po-info class="po-lg-4" p-label="Saldo Total" [p-value]="(item.saldo_total | currency:'BRL') ?? ''"></po-info>
       </div>
     </ng-template>
 
     <ng-template p-list-view-detail-template let-item [p-show-detail]="showDetail">
       <div class="po-row">
-        <po-info class="po-md-6" p-label="Age" [p-value]="item.age"></po-info>
+        <po-divider p-label="Histórico de Créditos"></po-divider>
 
-        <po-info class="po-md-6" p-label="City" [p-value]="item.city"></po-info>
+        <div
+          class="po-md-12"
+          *ngFor="let hist of item.historico"
+          style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px;"
+        >
+          <po-info class="po-md-4" p-label="Período" [p-value]="hist.periodo"></po-info>
+          <po-info class="po-md-4" p-label="Crédito" [p-value]="(hist.valor_credito | currency:'BRL') ?? ''"></po-info>
+          <po-info class="po-md-4" p-label="Saldo" [p-value]="(hist.valor_saldo | currency:'BRL') ?? ''"></po-info>
+        </div>
       </div>
     </ng-template>
 </po-list-view>

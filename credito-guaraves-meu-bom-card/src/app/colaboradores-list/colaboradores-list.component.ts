@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { SamplePoListViewHiringProcessesService } from './sample-po-list-view-hiring-processes.service';
+import { PoListViewAction } from '@po-ui/ng-components';
 
 @Component({
   selector: 'colaboradores-list',
@@ -42,4 +43,10 @@ export class ColaboradoresListComponent implements OnInit {
       return nomeOk && matriculaOk;
     });
   }
+    readonly actions: Array<PoListViewAction> = [
+    {
+      label: 'Novo Crédito',
+      icon: 'an an-check'
+    }
+  ];
 }
