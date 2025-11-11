@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ export class SamplePoListViewHiringProcessesService {
 
   constructor(){}
 
-  loadZBC() {
+  public loadZBC() {
     let listZBC: Array<any> = [
       {
         matricula: '001',
@@ -53,18 +53,23 @@ export class SamplePoListViewHiringProcessesService {
     ];
     this.listZBC$.next(listZBC);
     console.log('SELECIONADO MOCADO',this.listZBC$);
-    return (listZBC);
   }
   
   // BUSCANDO DO PROTHEUS
   public  loadZBCLibCore(listZBCParam: string) {
         
-        let listZBC!: any;
-        
-        if(listZBCParam){
-            listZBC = JSON.parse(listZBCParam);
-        }
-      console.log('SELECIONADO DO PROTHEUS',this.listZBC$);
-        return (listZBC);
+    let listZBC!: any;
+    
+    if(listZBCParam){
+        listZBC = JSON.parse(listZBCParam);
+    }
+    this.listZBC$.next(listZBC);
+    console.log('SELECIONADO DO PROTHEUS',this.listZBC$);
+  }
+
+  
+  /** Observable público da lista */
+  public getListZBC(): Observable<Array<any>> {
+    return this.listZBC$.asObservable();
   }
 }
