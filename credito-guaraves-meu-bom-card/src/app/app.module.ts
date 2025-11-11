@@ -11,6 +11,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { SamplePoPageDynamicSearchBasicComponent } from './sample-po-page-dynamic-search-basic/sample-po-page-dynamic-search-basic.component';
 import {ColaboradoresListComponent} from './colaboradores-list/colaboradores-list.component'
+import { ProtheusLibCoreModule } from '@totvs/protheus-lib-core'; // Importing ProtheusLibCoreModule for Protheus integration
 @NgModule({
   declarations: [
     AppComponent,
@@ -25,7 +26,8 @@ import {ColaboradoresListComponent} from './colaboradores-list/colaboradores-lis
     PoTableModule,
     HttpClientModule,
     RouterModule.forRoot([]),
-    PoPageDynamicSearchModule
+    PoPageDynamicSearchModule,
+    ProtheusLibCoreModule // Importing ProtheusLibCoreModule for Protheus integration
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,11 +1,17 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SamplePoListViewHiringProcessesService {
-  getItems() {
-    return [
+
+  private listZBC$ = new BehaviorSubject<Array<any>>([]);
+
+  constructor(){}
+
+  loadZBC() {
+    let listZBC: Array<any> = [
       {
         matricula: '001',
         nome: 'João Silva',
@@ -45,5 +51,20 @@ export class SamplePoListViewHiringProcessesService {
         ]
       }
     ];
+    this.listZBC$.next(listZBC);
+    console.log('SELECIONADO MOCADO',this.listZBC$);
+    return (listZBC);
+  }
+  
+  // BUSCANDO DO PROTHEUS
+  public  loadZBCLibCore(listZBCParam: string) {
+        
+        let listZBC!: any;
+        
+        if(listZBCParam){
+            listZBC = JSON.parse(listZBCParam);
+        }
+      console.log('SELECIONADO DO PROTHEUS',this.listZBC$);
+        return (listZBC);
   }
 }
