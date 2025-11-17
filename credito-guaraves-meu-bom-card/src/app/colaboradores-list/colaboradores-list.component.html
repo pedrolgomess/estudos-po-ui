@@ -6,9 +6,9 @@
   >
     <ng-template p-list-view-content-template let-item [p-title]="formatTitle">
       <div class="po-row">
-        <po-info class="po-lg-4" p-label="Matrícula" [p-value]="item.matricula"></po-info>
+        <po-info class="po-lg-4" p-label="Filial" [p-value]="item.filial"></po-info>
 
-        <po-info class="po-lg-4" p-label="Cargo" [p-value]="item.cargo"></po-info>
+        <po-info class="po-lg-4" p-label="Matrícula" [p-value]="item.matricula"></po-info>
 
         <po-info class="po-lg-4" p-label="Saldo Total" [p-value]="(item.saldo_total | currency:'BRL') ?? ''"></po-info>
       </div>

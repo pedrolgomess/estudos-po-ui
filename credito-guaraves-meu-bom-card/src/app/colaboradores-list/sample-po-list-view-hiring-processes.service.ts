@@ -13,6 +13,7 @@ export class SamplePoListViewHiringProcessesService {
   public loadZBC() {
     let listZBC: Array<any> = [
       {
+        filial: '01',
         matricula: '001',
         nome: 'João Silva',
         cargo: 'Analista',
@@ -32,6 +33,7 @@ export class SamplePoListViewHiringProcessesService {
         ]
       },
       {
+        filial: '01',
         matricula: '002',
         nome: 'Pedro',
         cargo: 'Analista',

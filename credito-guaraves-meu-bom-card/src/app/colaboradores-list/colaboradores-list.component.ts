@@ -90,10 +90,12 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       return nomeOk && matriculaOk;
     });
   }
-    readonly actions: Array<PoListViewAction> = [
+
+  readonly actions: Array<PoListViewAction> = [
     {
       label: 'Novo Crédito',
       icon: 'an an-check'
     }
   ];
+  
 }
