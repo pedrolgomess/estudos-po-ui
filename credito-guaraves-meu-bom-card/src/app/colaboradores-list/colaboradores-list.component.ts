@@ -119,7 +119,15 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   onValorCreditoChange(value: any) {
     this.saldo = Number(value) || 0;
   }
-  salvarCredito() {
+  async salvarCredito() {
+
+    if (!this.periodo || !this.valorCredito) {
+      this.notify.warning('Preencha o período e o valor do crédito.');
+      return;
+    }
+
+    this.isSaving = true; // ativa loading
+
     const dados = {
       filial: this.selectedItem.filial,
       matricula: this.selectedItem.matricula,
@@ -130,11 +138,31 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
     console.log('Enviando payload:', dados);
 
-    // Aqui você faz seu POST via seu service...
-    // this.service.salvarCredito(dados).subscribe(...)
+    try {
 
-    this.modalNovoCredito.close();
+      // Simulação do POST com delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Se fosse POST real:
+      // await this.seuService.salvarCredito(dados).toPromise();
+
+      this.notify.success('Crédito inserido com sucesso!');
+
+      this.modalNovoCredito.close();
+      this.restaurarFormulario();
+
+    } catch (e) {
+
+      console.error(e);
+      this.notify.error('Erro ao salvar crédito!');
+
+    } finally {
+
+      this.isSaving = false; // remove loading
+
+    }
   }
+
   restaurarFormulario() {
     this.periodo = '';
     this.valorCredito = null;

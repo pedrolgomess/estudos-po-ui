@@ -89,6 +89,8 @@
     <po-button
       p-kind="primary"
       p-label="Salvar Crédito"
+      [p-loading]="isSaving"
+      [p-disabled]="isSaving"
       (p-click)="salvarCredito()">
     </po-button>
 
