@@ -35,39 +35,63 @@
 
   <form #creditoForm="ngForm">
 
-    <po-input 
-      name="periodo"
-      p-label="Período"
-      [(ngModel)]="periodo">
-    </po-input>
+    <div class="po-column">
+      <po-info p-label="Filial" [p-value]="selectedItem?.filial"></po-info>
+      <po-info p-label="Matrícula" [p-value]="selectedItem?.matricula"></po-info>
+      <po-info p-label="C.P.F" [p-value]="selectedItem?.cpf"></po-info>
+    </div>
+    <po-divider></po-divider>
 
-    <po-number 
-      name="valorCredito"
-      p-label="Valor"
-      [(ngModel)]="valorCredito">
-    </po-number>
+    <div class="po-row">
+
+      <po-input
+        class="po-md-6"
+        p-label="Novo Período"
+        name="periodo"
+        [(ngModel)]="periodo"
+        p-required>
+      </po-input>
+
+      <po-number
+        class="po-md-6"
+        p-label="Valor do Crédito"
+        name="valorCredito"
+        [(ngModel)]="valorCredito"
+        (ngModelChange)="onValorCreditoChange($event)"
+        p-required>
+      </po-number>
+
+    </div>
+
+    <div class="po-row">
+      <po-info
+        class="po-md-12"
+        p-label="Saldo"
+        [p-value]="(saldo | currency:'BRL') || ''">
+      </po-info>
+    </div>
 
   </form>
 
-  <po-modal-footer>
+  <po-modal-footer [p-disabled-align]="false">
 
     <po-button
-      p-label="Cancelar"
-      p-type="secondary"
+      p-label="Fechar"
+      p-danger="true"
       (p-click)="modalNovoCredito.close()">
     </po-button>
 
-    <po-button 
-      p-label="Salvar"
-      p-primary
-      [p-loading]="isSaving"
-      [p-disabled]="isSaving"
+    <po-button
+      p-label="Limpar"
+      (p-click)="restaurarFormulario()">
+    </po-button>
+
+    <po-button
+      p-kind="primary"
+      p-label="Salvar Crédito"
       (p-click)="salvarCredito()">
     </po-button>
 
   </po-modal-footer>
 
 </po-modal>
-
-
-

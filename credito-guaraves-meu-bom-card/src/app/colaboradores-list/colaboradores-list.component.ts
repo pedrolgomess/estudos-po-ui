@@ -135,4 +135,9 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
     this.modalNovoCredito.close();
   }
+  restaurarFormulario() {
+    this.periodo = '';
+    this.valorCredito = null;
+    this.saldo = null;
+  }
 }
