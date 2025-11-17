@@ -68,7 +68,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     if (this.subscription) this.subscription.unsubscribe();
   }
   formatTitle(item: any) {
-    return `${item.nome}`;
+    return `${item.nome} | Código: ${item.client} - ${item.loja}`;
   }
 
   showDetail() {
@@ -97,5 +97,5 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       icon: 'an an-check'
     }
   ];
-  
+
 }

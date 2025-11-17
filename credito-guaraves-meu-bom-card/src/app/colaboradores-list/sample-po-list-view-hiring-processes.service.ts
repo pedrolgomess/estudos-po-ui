@@ -15,9 +15,11 @@ export class SamplePoListViewHiringProcessesService {
       {
         filial: '01',
         matricula: '001',
+        client: 'XXXXXX',
+        loja: "01",
+        cpf: "XXX.XXX.XXX-XX",
         nome: 'João Silva',
-        cargo: 'Analista',
-        email: "joao@empresa.com",
+        cadastrado_por: 'pedro.lucas',
         saldo_total: 200,
         historico: [
             {
@@ -35,9 +37,11 @@ export class SamplePoListViewHiringProcessesService {
       {
         filial: '01',
         matricula: '002',
+        client: 'XXXXXX',
+        loja: "01",
+        cpf: "XXX.XXX.XXX-XX",
         nome: 'Pedro',
-        cargo: 'Analista',
-        email: "joao@empresa.com",
+        cadastrado_por: 'pedro.lucas',
         saldo_total: 200,
         historico: [
             {
