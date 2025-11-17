@@ -5,6 +5,8 @@ User Function CREDPOUI()
 Return 
 
 Static Function jsToAdvpl(oWebChannel, cType, cContent)
+	// cContent vem como JSON enviado pelo Angular
+	Local oJsNovoC := JsonObject():New()
 
     do case 
 
@@ -19,7 +21,16 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
         case cType == 'loadZBCLibCore'
             cContent := fnLoadZBC()
             oWebChannel:advplToJs('loadZBCLibCore',cContent)
-            
+
+        case cType == 'salvarCredito'
+
+			oJsNovoC:fromJson(cContent)
+			// Retorno para o Angular
+			If NovoCred(oJsNovoC)
+				oWebChannel:advplToJs('salvarCredito', '{"status":"OK","mensagem":"Crédito inserido com sucesso no Protheus!"}')
+			Else
+				oWebChannel:advplToJs('salvarCredito', '{"status":"ERRO","mensagem":"Erro ao inserir crédito no Protheus."}')
+			EndIf
     end case
     
 Return .T.
@@ -101,3 +112,30 @@ Static Function xGetHis(cFilZBC, cMatZBC)
 	AAdd(aDados, aHists)
 
 Return aDados
+
+Static Function NovoCred(oJson)
+
+    Local cFila    	 := oJson['filial']
+    Local cMatric    := oJson['matricula']
+    Local cPeriodo   := oJson['periodo']
+    //Local nValor     := Val(oJson['valorCredito'])
+    //Local nSaldo     := Val(oJson['saldo'])
+    Local lOk        := .T.
+    // Inserir um novo registro em ZBC010
+    DbSelectArea("ZBC")
+	ZBC->(DbSetOrder(4))
+	if ZBC->(DbSeek(cFila+cMatric+cPeriodo)) //SE EXISTIR EXIBIR MENSAGEM
+	    // RecLock("ZBC",.F.)
+	    //     //ZBC->ZBC_SALDO:= ZBC->ZBC_SALDO - nUsaCBC
+	    //     If ZBC->ZBC_SALDO <= nValorRestante
+	    //         nValorRestante -= ZBC->ZBC_SALDO
+	    //         ZBC->ZBC_SALDO := 0
+	    //     Else
+	    //         ZBC->ZBC_SALDO := ZBC->ZBC_SALDO - nValorRestante
+	    //         nValorRestante := 0
+	    //     EndIf
+	    // ZBC->(MsUnLock())
+		lOk := .T.
+	endif
+
+Return lOk

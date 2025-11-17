@@ -7,7 +7,7 @@
 			"name": "Smart Client Web Debug",
 			"program": "${command:AskForProgramName}",
 			"isMultiSession": true,
-			"enableTableSync": true
+			"enableTableSync": false
 		},
 		{
 			"name": "ng serve",
