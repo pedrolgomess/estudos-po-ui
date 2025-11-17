@@ -2,10 +2,10 @@ import { Component, ViewChild } from '@angular/core';
 import { ColaboradoresListComponent } from '../colaboradores-list/colaboradores-list.component';
 
 @Component({
-  selector: 'sample-po-page-dynamic-search-basic',
-  templateUrl: './sample-po-page-dynamic-search-basic.component.html'
+  selector: 'buscar-colaboradores-dinamicamente',
+  templateUrl: './buscar-colaboradores-dinamicamente.component.html'
 })
-export class SamplePoPageDynamicSearchBasicComponent {
+export class BuscarColaboradoresDinamicamenteComponent {
 
   @ViewChild(ColaboradoresListComponent)
   listaColaboradores!: ColaboradoresListComponent;
