@@ -78,4 +78,15 @@ export class SamplePoListViewHiringProcessesService {
   public getListZBC(): Observable<Array<any>> {
     return this.listZBC$.asObservable();
   }
+
+  // 🟢 MÉTODO MOCK — simula retorno
+  aguardarRetornoCreditoMock(payload: any): Promise<any> {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          mensagem: 'Crédito salvo com sucesso (mock)!'
+        });
+      }, 1500);
+    });
+  }
 }

@@ -15,11 +15,11 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   proAppCfg = inject(ProAppConfigService);
   proAppAdvpl = inject(ProJsToAdvplService);
 
-  @HostListener('window:keydown',['$event'])
-  handleKeyBoardEvent(event: KeyboardEvent){
-     if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) {
+  @HostListener('window:keydown', ['$event'])
+  handleKeyBoardEvent(event: KeyboardEvent) {
+    if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) {
       event.preventDefault();
-    }   
+    }
   }
   @ViewChild('modalNovoCredito', { static: true })
   modalNovoCredito!: PoModalComponent;
@@ -39,16 +39,16 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.colaboradoresFiltrados = [...list];
     });
     //Se estiver no protheus busca através do jsToAdvpl
-    if(this.proAppCfg.insideProtheus()) {
-      
+    if (this.proAppCfg.insideProtheus()) {
+
       this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
       const content = await this.aguardarLoadZBCLibCore();
       this.hiringProcessesService.loadZBCLibCore(content);
-      
+
     } else {
       // Se não, carrega mocado
       this.hiringProcessesService.loadZBC();
-      console.log('SELECIONADO CARREGANDO',this.hiringProcessesService);
+      console.log('SELECIONADO CARREGANDO', this.hiringProcessesService);
     }
     //Inicia o processo de buscar os itens
     this.colaboradoresFiltrados = [...this.hiringProcesses];
@@ -77,7 +77,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     return this.modalDetail;
   }
 
-   filtrarPorBuscaRapida(search: string) {
+  filtrarPorBuscaRapida(search: string) {
     const termo = search?.toLowerCase() || '';
     this.colaboradoresFiltrados = this.hiringProcesses.filter(col =>
       col.nome.toLowerCase().includes(termo) ||
@@ -116,9 +116,11 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
     this.modalNovoCredito.open();
   }
+
   onValorCreditoChange(value: any) {
     this.saldo = Number(value) || 0;
   }
+
   async salvarCredito() {
 
     if (!this.periodo || !this.valorCredito) {
@@ -126,7 +128,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isSaving = true; // ativa loading
+    this.isSaving = true;
 
     const dados = {
       filial: this.selectedItem.filial,
@@ -136,36 +138,67 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       saldo: this.saldo
     };
 
-    console.log('Enviando payload:', dados);
-
     try {
+      let retorno;
 
-      // Simulação do POST com delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (this.proAppCfg.insideProtheus()) {
 
-      // Se fosse POST real:
-      // await this.seuService.salvarCredito(dados).toPromise();
+        console.log(">>> Executou salvarCredito()");
+        console.log(">>> Dentro do Protheus? ", this.proAppCfg.insideProtheus());
+        retorno = await this.aguardarRetornoCredito(dados);
 
-      this.notify.success('Crédito inserido com sucesso!');
+      } else {
+        retorno = await this.hiringProcessesService.aguardarRetornoCreditoMock(dados);
+      }
 
+      this.notify.success(retorno.mensagem);
       this.modalNovoCredito.close();
       this.restaurarFormulario();
 
-    } catch (e) {
-
-      console.error(e);
-      this.notify.error('Erro ao salvar crédito!');
-
+    } catch (err: any) {
+      this.notify.error(err?.mensagem || 'Erro ao salvar crédito!');
     } finally {
-
-      this.isSaving = false; // remove loading
-
+      this.isSaving = false;
     }
   }
+
 
   restaurarFormulario() {
     this.periodo = '';
     this.valorCredito = null;
     this.saldo = null;
   }
+
+  aguardarRetornoCredito(payload: any): Promise<any> {
+    console.log(">>> Executou salvarCredito() e entrou em aguardarRetornoCredito");
+    console.log(">>> Dentro do Protheus? ", this.proAppCfg.insideProtheus());
+    // 1) Dispara chamada para o Protheus
+    this.proAppAdvpl.jsToAdvpl('salvarCredito', JSON.stringify(payload));
+
+    // 2) Aguarda retorno via localStorage
+    return new Promise((resolve, reject) => {
+      const intervalo = setInterval(() => {
+        const item = localStorage.getItem('salvarCredito');
+        console.log('RETORNO DO ITEM NO PROTHEUS: ', item);
+        if (item) {
+          clearInterval(intervalo);
+          localStorage.removeItem('salvarCredito');
+
+          try {
+            const json = JSON.parse(item);
+            console.log('JSON RECEBIDO DO ITEM NO PROTHEUS: ', json);
+            if (json.status === 'OK') {
+              resolve({ mensagem: json.mensagem });
+            } else {
+              reject({ mensagem: json.mensagem });
+            }
+
+          } catch {
+            reject({ mensagem: 'Erro ao interpretar o retorno!' });
+          }
+        }
+      }, 100); // verifica a cada 100ms
+    });
+  }
+
 }
