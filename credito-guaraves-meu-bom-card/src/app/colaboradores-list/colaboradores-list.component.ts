@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, HostListener, ViewChild } from '@angular/core';
 
 import { SamplePoListViewHiringProcessesService } from './sample-po-list-view-hiring-processes.service';
-import { PoListViewAction, PoNotificationService } from '@po-ui/ng-components';
+import { PoListViewAction, PoModalComponent, PoNotificationService } from '@po-ui/ng-components';
 import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-core'; // Importing ProtheusLibCoreModule for Protheus integration
 import { Subscription } from 'rxjs';
 
@@ -21,7 +21,9 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       event.preventDefault();
     }   
   }
-  
+  @ViewChild('modalNovoCredito', { static: true })
+  modalNovoCredito!: PoModalComponent;
+  isSaving = false;
   // Inject do serviço de buscar a ZBC
   private hiringProcessesService = inject(SamplePoListViewHiringProcessesService);
   private subscription!: Subscription;
@@ -94,8 +96,43 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   readonly actions: Array<PoListViewAction> = [
     {
       label: 'Novo Crédito',
-      icon: 'an an-check'
+      icon: 'po-icon-plus',
+      action: (item: any) => this.abrirNovoCredito(item)
     }
   ];
 
+  selectedItem: any = null;
+  periodo: string = '';
+  valorCredito: number | null = null;
+  saldo: number | null = null;
+
+  abrirNovoCredito(item: any) {
+    this.selectedItem = item;
+
+    // Zera campos de edição
+    this.periodo = '';
+    this.valorCredito = null;
+    this.saldo = null;
+
+    this.modalNovoCredito.open();
+  }
+  onValorCreditoChange(value: any) {
+    this.saldo = Number(value) || 0;
+  }
+  salvarCredito() {
+    const dados = {
+      filial: this.selectedItem.filial,
+      matricula: this.selectedItem.matricula,
+      periodo: this.periodo,
+      valorCredito: this.valorCredito,
+      saldo: this.saldo
+    };
+
+    console.log('Enviando payload:', dados);
+
+    // Aqui você faz seu POST via seu service...
+    // this.service.salvarCredito(dados).subscribe(...)
+
+    this.modalNovoCredito.close();
+  }
 }

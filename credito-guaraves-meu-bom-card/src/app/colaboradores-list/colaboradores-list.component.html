@@ -30,3 +30,44 @@
       </div>
     </ng-template>
 </po-list-view>
+
+<po-modal #modalNovoCredito p-title="Novo Crédito">
+
+  <form #creditoForm="ngForm">
+
+    <po-input 
+      name="periodo"
+      p-label="Período"
+      [(ngModel)]="periodo">
+    </po-input>
+
+    <po-number 
+      name="valorCredito"
+      p-label="Valor"
+      [(ngModel)]="valorCredito">
+    </po-number>
+
+  </form>
+
+  <po-modal-footer>
+
+    <po-button
+      p-label="Cancelar"
+      p-type="secondary"
+      (p-click)="modalNovoCredito.close()">
+    </po-button>
+
+    <po-button 
+      p-label="Salvar"
+      p-primary
+      [p-loading]="isSaving"
+      [p-disabled]="isSaving"
+      (p-click)="salvarCredito()">
+    </po-button>
+
+  </po-modal-footer>
+
+</po-modal>
+
+
+

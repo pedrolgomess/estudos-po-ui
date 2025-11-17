@@ -3,26 +3,32 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { PoModule } from '@po-ui/ng-components';
+import { PoButtonModule, PoListViewModule, PoModalModule, PoModule } from '@po-ui/ng-components';
 import { PoPageDynamicSearchModule } from '@po-ui/ng-templates';
 import { PoTableModule } from '@po-ui/ng-components';
 
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { SamplePoPageDynamicSearchBasicComponent } from './sample-po-page-dynamic-search-basic/sample-po-page-dynamic-search-basic.component';
+import { BuscarColaboradoresDinamicamenteComponent } from './buscar-colaboradores-dinamicamente/buscar-colaboradores-dinamicamente.component';
 import {ColaboradoresListComponent} from './colaboradores-list/colaboradores-list.component'
 import { ProtheusLibCoreModule } from '@totvs/protheus-lib-core'; // Importing ProtheusLibCoreModule for Protheus integration
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
-    SamplePoPageDynamicSearchBasicComponent,
+    BuscarColaboradoresDinamicamenteComponent,
     ColaboradoresListComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    FormsModule,
     PoModule,
+    PoModalModule,
+    PoButtonModule,
+    PoListViewModule,
+    PoTableModule,
     PoTableModule,
     HttpClientModule,
     RouterModule.forRoot([]),
