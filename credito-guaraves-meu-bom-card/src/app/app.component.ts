@@ -8,9 +8,15 @@ import { PoMenuItem } from '@po-ui/ng-components';
 })
 export class AppComponent {
 
-  readonly menus: Array<PoMenuItem> = [
-    { label: 'Cadastrar Novo Colaborador', action: this.onClick.bind(this) },
-    { label: 'Exportar Relatório', action: this.onClick.bind(this) },
+ menus: Array<PoMenuItem> = [
+    { label: 'Cadastrar Novo Colaborador',  action: this.onClick.bind(this), icon: 'an an-user', shortLabel: 'Cadastrar Novo Colaborador' },
+    {
+      label: 'Exportar Relatório',
+       action: this.onClick.bind(this),
+      icon: 'an an-clock',
+      shortLabel: 'Exportar Relatório',
+    },
+
   ];
 
   private onClick() {
