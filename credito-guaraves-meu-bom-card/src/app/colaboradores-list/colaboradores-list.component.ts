@@ -36,6 +36,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
+    this.isLoadingList = true;
     this.subscription = this.hiringProcessesService.getListZBC().subscribe(list => {
       this.hiringProcesses = list;
       this.colaboradoresFiltrados = [...list];
@@ -54,6 +55,8 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     }
     //Inicia o processo de buscar os itens
     this.colaboradoresFiltrados = [...this.hiringProcesses];
+    this.isLoadingList = false;
+
   }
 
   aguardarLoadZBCLibCore(): Promise<string> {
@@ -145,6 +148,9 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     const dados = {
       filial: this.selectedItem.filial,
       matricula: this.selectedItem.matricula,
+      client: this.selectedItem.client,
+      loja:this.selectedItem.loja,
+      cpf:this.selectedItem.cpf,
       periodo: this.periodo,
       valorCredito: this.valorCredito,
       saldo: this.saldo
@@ -158,7 +164,6 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
         console.log(">>> Executou salvarCredito()");
         console.log(">>> Dentro do Protheus? ", this.proAppCfg.insideProtheus());
         retorno = await this.aguardarRetornoCredito(dados);
-
       } else {
         retorno = await this.hiringProcessesService.aguardarRetornoCreditoMock(dados);
       }
