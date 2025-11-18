@@ -23,6 +23,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   }
   @ViewChild('modalNovoCredito', { static: true })
   modalNovoCredito!: PoModalComponent;
+  @ViewChild('periodoInput', { static: false }) periodoInput: any;
   isSaving = false;
   isLoadingList = false;
   // Inject do serviço de buscar a ZBC
@@ -135,6 +136,16 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.validarPeriodoFinal()) {
+      this.notify.warning('Período inválido. Use MMYYYY, ex: 092025');
+      return;
+    }
+
+    if (!this.valorCredito) {
+      this.notify.warning('Preencha o valor do crédito.');
+      return;
+    }
+
     this.isSaving = true;
 
     const dados = {
@@ -208,4 +219,24 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     });
   }
 
+  validarPeriodoFinal(): boolean {
+    const valor = this.periodo || '';
+
+    // Exatamente 6 dígitos
+    if (valor.length !== 6) return false;
+
+    const regex = /^(0[1-9]|1[0-2])(19|20)\d{2}$/; // MMYYYY
+
+    return regex.test(valor);
+  }
+  
+  formatarCpf(cpf: string | undefined): string {
+    if (!cpf) return '';
+
+    cpf = cpf.replace(/\D/g, ''); // remove tudo que não é número
+
+    if (cpf.length !== 11) return cpf; // evita erro caso venha tamanho inesperado
+
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  }
 }
