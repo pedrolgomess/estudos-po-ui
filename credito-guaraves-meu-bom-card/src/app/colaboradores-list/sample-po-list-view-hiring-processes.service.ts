@@ -7,7 +7,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class SamplePoListViewHiringProcessesService {
 
   private listZBC$ = new BehaviorSubject<Array<any>>([]);
-
+  public solicitarRecarregarLista$ = new BehaviorSubject<boolean>(false);
   constructor(){}
 
   public loadZBC() {
@@ -17,7 +17,7 @@ export class SamplePoListViewHiringProcessesService {
         matricula: '001',
         client: 'XXXXXX',
         loja: "01",
-        cpf: "XXX.XXX.XXX-XX",
+        cpf: "11111111111",
         nome: 'João Silva',
         cadastrado_por: 'pedro.lucas',
         saldo_total: 200,
@@ -39,7 +39,7 @@ export class SamplePoListViewHiringProcessesService {
         matricula: '002',
         client: 'XXXXXX',
         loja: "01",
-        cpf: "XXX.XXX.XXX-XX",
+        cpf: "11111111111",
         nome: 'Pedro',
         cadastrado_por: 'pedro.lucas',
         saldo_total: 200,
@@ -88,5 +88,8 @@ export class SamplePoListViewHiringProcessesService {
         });
       }, 1500);
     });
+  }
+  recarregarLista() {
+    this.solicitarRecarregarLista$.next(true);
   }
 }
