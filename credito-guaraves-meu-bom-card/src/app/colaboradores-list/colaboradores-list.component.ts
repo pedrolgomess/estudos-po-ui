@@ -41,6 +41,10 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.hiringProcesses = list;
       this.colaboradoresFiltrados = [...list];
     });
+
+    this.hiringProcessesService.solicitarRecarregarLista$.subscribe(() => {
+      this.recarregarLista();
+    });
     //Se estiver no protheus busca através do jsToAdvpl
     if (this.proAppCfg.insideProtheus()) {
 
@@ -171,6 +175,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.notify.success(retorno.mensagem);
       this.modalNovoCredito.close();
       this.restaurarFormulario();
+      this.hiringProcessesService.recarregarLista();
 
     } catch (err: any) {
       this.notify.error(err?.mensagem || 'Erro ao salvar crédito!');
@@ -237,5 +242,27 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     if (cpf.length !== 11) return cpf; // evita erro caso venha tamanho inesperado
 
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  }
+  recarregarLista() {
+    this.isLoadingList = true;
+
+    if (this.proAppCfg.insideProtheus()) {
+
+      // 🔥 Dispara nova carga da ZBC
+      this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
+
+      // 🔥 Aguarda retorno no localStorage
+      this.aguardarLoadZBCLibCore().then(content => {
+        this.hiringProcessesService.loadZBCLibCore(content);
+        this.isLoadingList = false;
+      });
+
+    } else {
+
+      // 🔥 Ambiente mockado
+      this.hiringProcessesService.loadZBC();
+      this.isLoadingList = false;
+
+    }
   }
 }
