@@ -7,7 +7,7 @@ Return
 Static Function jsToAdvpl(oWebChannel, cType, cContent)
 	// cContent vem como JSON enviado pelo Angular
 	Local oJsNovoC := JsonObject():New()
-
+	Local cListaAtualizada := ''
     do case 
 
         case cType == 'mensagemjs'
@@ -28,6 +28,9 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 			// Retorno para o Angular
 			If NovoCred(oJsNovoC)
 				oWebChannel:advplToJs('salvarCredito', '{"status":"OK","mensagem":"Crédito inserido com sucesso no Protheus!"}')
+				    // ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
+					cListaAtualizada := fnLoadZBC()
+					oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
 			Else
 				oWebChannel:advplToJs('salvarCredito', '{"status":"ERRO","mensagem":"Colaborador Já com Crédito neste periodo"}')
 			EndIf

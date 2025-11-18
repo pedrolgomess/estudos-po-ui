@@ -29,5 +29,6 @@
 			"label": "SIGAADV"
 		}
 	],
-	"lastProgramExecuted": "SIGAADV"
+	"lastProgramExecuted": "<cancel>",
+	"lastProgramArguments": []
 }
