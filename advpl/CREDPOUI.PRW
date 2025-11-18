@@ -54,12 +54,10 @@ Static Function fnLoadZBC()
     cCons+= "	ZBC_CLIENT,"
     cCons+= "	ZBC_LOJA,"
     cCons+= "	ZBC_CIC"
-    //cCons+= "	ZBC_USRCRE"
 	cCons+= "FROM "
 	cCons+= " PROTHEUS.ZBC010"
 	cCons+= "WHERE "
 	cCons+=" D_E_L_E_T_ = ' '"
-	cCons+=" AND ZBC_MATRIC = '300081'"
 	cCons+= "ORDER BY"
 	cCons+=" ZBC_FILIAL, ZBC_MATRIC"
 
@@ -78,7 +76,6 @@ Static Function fnLoadZBC()
 		oJsonZBC['loja']			:= GETZBC->ZBC_LOJA
 		oJsonZBC['cpf']				:= GETZBC->ZBC_CIC
 		oJsonZBC['nome']			:= Alltrim(POSICIONE("SA1",3,xFilial("SA1")+GETZBC->ZBC_CIC, "A1_NOME"))
-		oJsonZBC['cadastrado_por']	:= ''
 		oJsonZBC['saldo_total']		:= aRets[1]
 		oJsonZBC['historico']		:= aRets[2]
 		AAdd(allColab, oJsonZBC)
