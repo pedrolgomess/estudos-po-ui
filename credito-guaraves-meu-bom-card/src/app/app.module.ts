@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { PoButtonModule, PoListViewModule, PoModalModule, PoModule } from '@po-ui/ng-components';
+import { PoButtonModule, PoListViewModule, PoLoadingModule, PoModalModule, PoModule } from '@po-ui/ng-components';
 import { PoPageDynamicSearchModule } from '@po-ui/ng-templates';
 import { PoTableModule } from '@po-ui/ng-components';
 
@@ -30,6 +30,7 @@ import { FormsModule } from '@angular/forms';
     PoListViewModule,
     PoTableModule,
     PoTableModule,
+    PoLoadingModule,
     HttpClientModule,
     RouterModule.forRoot([]),
     PoPageDynamicSearchModule,

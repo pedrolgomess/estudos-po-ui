@@ -24,6 +24,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   @ViewChild('modalNovoCredito', { static: true })
   modalNovoCredito!: PoModalComponent;
   isSaving = false;
+  isLoadingList = false;
   // Inject do serviço de buscar a ZBC
   private hiringProcessesService = inject(SamplePoListViewHiringProcessesService);
   private subscription!: Subscription;
@@ -34,11 +35,9 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
-    this.subscription = this.hiringProcessesService.getListZBC().subscribe(list => {
-      this.hiringProcesses = list;
-      this.colaboradoresFiltrados = [...list];
-    });
-    //Se estiver no protheus busca através do jsToAdvpl
+    this.isLoadingList = true;
+
+    // 1) Carregar dados primeiro (Protheus ou Mock)
     if (this.proAppCfg.insideProtheus()) {
 
       this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
@@ -46,12 +45,20 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.hiringProcessesService.loadZBCLibCore(content);
 
     } else {
-      // Se não, carrega mocado
+
       this.hiringProcessesService.loadZBC();
-      console.log('SELECIONADO CARREGANDO', this.hiringProcessesService);
     }
-    //Inicia o processo de buscar os itens
-    this.colaboradoresFiltrados = [...this.hiringProcesses];
+
+    // 2) Somente depois disso ouvir o Observable
+    this.subscription = this.hiringProcessesService.getListZBC().subscribe(list => {
+
+      this.hiringProcesses = list;
+      this.colaboradoresFiltrados = [...list];
+
+      // 3) Agora sim desliga o loading
+      setTimeout(() => this.isLoadingList = false, 2000)
+    });
+
   }
 
   aguardarLoadZBCLibCore(): Promise<string> {

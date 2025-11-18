@@ -1,3 +1,11 @@
+<!-- LOADING GLOBAL DA LISTA -->
+<po-loading-overlay
+  *ngIf="isLoadingList"
+  [p-screen-lock]="true"
+  p-text="Carregando colaboradores..."
+  p-size="lg">
+</po-loading-overlay>
+
 <po-list-view
     [p-hide-select-all]="true"
     p-property-link="url"
