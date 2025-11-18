@@ -162,7 +162,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.notify.success(retorno.mensagem);
       this.modalNovoCredito.close();
       this.restaurarFormulario();
-      this.recarregarLista();
+      await this.recarregarListaGarantida();
     } catch (err: any) {
       this.notify.error(err?.mensagem || 'Erro ao salvar crédito!');
     } finally {
@@ -232,15 +232,75 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
   async recarregarLista() {
     this.isLoadingList = true;
+    console.log('--- RELOAD DISPARADO ---', new Date().toISOString());
 
     if (this.proAppCfg.insideProtheus()) {
+      console.log('Chamando jsToAdvpl(loadZBCLibCore)');
+
       this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
+
       const content = await this.aguardarLoadZBCLibCore();
+      console.log('RETORNO ATUAL DO PROTHEUS:', content);
+
       this.hiringProcessesService.loadZBCLibCore(content);
       
     } else {
       this.hiringProcessesService.loadZBC();
     }
   }
+  async recarregarListaGarantida() {
+    console.log('🔄 Recarregando lista (polling seguro)...');
 
+    this.isLoadingList = true;
+
+    const maxTentativas = 5;
+    const delayEntreTentativas = 800;
+    const delayPosSubscribe = 300;
+
+    for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
+      console.log(`🔁 Tentativa ${tentativa} / ${maxTentativas}`);
+
+      await this.recarregarListaSemLoading();
+      await new Promise(res => setTimeout(res, delayPosSubscribe));
+
+      if (this.hiringProcesses?.length > 0) {
+        console.log('✅ Lista recarregada.');
+        this.isLoadingList = false;
+        return;
+      }
+
+      await new Promise(res => setTimeout(res, delayEntreTentativas));
+    }
+
+    console.warn('⚠ Não recarregou no tempo esperado.');
+    this.isLoadingList = false;
+  }
+
+recarregarListaSemLoading(): Promise<boolean> {
+  return new Promise((resolve) => {
+
+    const subscription = this.hiringProcessesService.getListZBC().subscribe({
+      next: (list) => {
+        this.hiringProcesses = list;
+        this.colaboradoresFiltrados = [...list];
+        subscription.unsubscribe();
+        resolve(true);
+      },
+      error: () => {
+        subscription.unsubscribe();
+        resolve(false); // evita erro e resolve mesmo assim
+      }
+    });
+
+    // dispara a carga
+    if (this.proAppCfg.insideProtheus()) {
+      this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
+      this.aguardarLoadZBCLibCore().then(content => {
+        this.hiringProcessesService.loadZBCLibCore(content);
+      });
+    } else {
+      this.hiringProcessesService.loadZBC();
+    }
+  });
+}
 }
