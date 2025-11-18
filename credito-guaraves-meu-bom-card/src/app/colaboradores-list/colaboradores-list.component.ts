@@ -35,31 +35,18 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
 
   async ngOnInit() {
-
     this.isLoadingList = true;
 
-    // 1) Carregar dados primeiro (Protheus ou Mock)
-    if (this.proAppCfg.insideProtheus()) {
+    // Só 1 subscribe fixa no componente
+    this.subscription = this.hiringProcessesService.getListZBC()
+      .subscribe(list => {
+        this.hiringProcesses = list;
+        this.colaboradoresFiltrados = [...list];
+        this.isLoadingList = false;
+      });
 
-      this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
-      const content = await this.aguardarLoadZBCLibCore();
-      this.hiringProcessesService.loadZBCLibCore(content);
-
-    } else {
-
-      this.hiringProcessesService.loadZBC();
-    }
-
-    // 2) Somente depois disso ouvir o Observable
-    this.subscription = this.hiringProcessesService.getListZBC().subscribe(list => {
-
-      this.hiringProcesses = list;
-      this.colaboradoresFiltrados = [...list];
-
-      // 3) Agora sim desliga o loading
-      setTimeout(() => this.isLoadingList = false, 2000)
-    });
-
+    // Efetua o primeiro load
+    this.recarregarLista();
   }
 
   aguardarLoadZBCLibCore(): Promise<string> {
@@ -149,8 +136,11 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     this.isSaving = true;
 
     const dados = {
-      filial: this.selectedItem.filial,
-      matricula: this.selectedItem.matricula,
+      filial    : this.selectedItem.filial,
+      matricula : this.selectedItem.matricula,
+      client    : this.selectedItem.client,
+      loja      : this.selectedItem.loja,
+      cpf       : this.selectedItem.cpf,
       periodo: this.periodo,
       valorCredito: this.valorCredito,
       saldo: this.saldo
@@ -172,7 +162,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.notify.success(retorno.mensagem);
       this.modalNovoCredito.close();
       this.restaurarFormulario();
-
+      this.recarregarLista();
     } catch (err: any) {
       this.notify.error(err?.mensagem || 'Erro ao salvar crédito!');
     } finally {
@@ -229,7 +219,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
     return regex.test(valor);
   }
-  
+
   formatarCpf(cpf: string | undefined): string {
     if (!cpf) return '';
 
@@ -239,4 +229,18 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   }
+
+  async recarregarLista() {
+    this.isLoadingList = true;
+
+    if (this.proAppCfg.insideProtheus()) {
+      this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
+      const content = await this.aguardarLoadZBCLibCore();
+      this.hiringProcessesService.loadZBCLibCore(content);
+      
+    } else {
+      this.hiringProcessesService.loadZBC();
+    }
+  }
+
 }
