@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { PoMenuItem } from '@po-ui/ng-components';
+import { NovoColaboradorComponent } from './novo-colaborador/novo-colaborador.component';
 
 @Component({
   selector: 'app-root',
@@ -8,8 +9,11 @@ import { PoMenuItem } from '@po-ui/ng-components';
 })
 export class AppComponent {
 
+  @ViewChild(NovoColaboradorComponent)
+  novoColaboradorComp!: NovoColaboradorComponent;
+  
  menus: Array<PoMenuItem> = [
-    { label: 'Cadastrar Novo Colaborador',  action: this.onClick.bind(this), icon: 'an an-user', shortLabel: 'Cadastrar Novo Colaborador' },
+    { label: 'Cadastrar Novo Colaborador',  action: () => this.novoColaboradorComp.abrirModal(), icon: 'an an-user', shortLabel: 'Cadastrar Novo Colaborador' },
     {
       label: 'Exportar Relatório',
        action: this.onClick.bind(this),

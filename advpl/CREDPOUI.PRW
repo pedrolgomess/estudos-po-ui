@@ -6,8 +6,11 @@ Return
 
 Static Function jsToAdvpl(oWebChannel, cType, cContent)
 	// cContent vem como JSON enviado pelo Angular
-	Local oJsNovoC := JsonObject():New()
+	Local oJsNovoC 	:= JsonObject():New()
+	Local oJsRetNo	:= JsonObject():New()
+
 	Local cListaAtualizada := ''
+
     do case 
 
         case cType == 'mensagemjs'
@@ -34,6 +37,31 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 			Else
 				oWebChannel:advplToJs('salvarCredito', '{"status":"ERRO","mensagem":"Colaborador Já com Crédito neste periodo"}')
 			EndIf
+
+		case cType == 'novoColaborador'
+
+			//Recebendo conteudo do Json passando para fromJson
+			oJsNovoC:fromJson(cContent)
+
+			// Executa a função
+			oJsRetNo:= NovoCola(oJsNovoC)
+			
+			// Retorno para o Angular
+			Do Case
+			Case oJsRetNo['code'] == 201
+				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
+				// ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
+				cListaAtualizada := fnLoadZBC()
+				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
+
+			Case oJsRetNo['code'] == 404
+				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
+
+			Case oJsRetNo['code'] == 409
+				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
+
+			EndCase
+
     end case
     
 Return .T.
@@ -146,3 +174,53 @@ Static Function NovoCred(oJson)
 	endif
 
 Return lOk
+
+Static Function NovoCola(oJson)
+    Local cFila    	 := oJson['filial']
+    Local cMatric    := oJson['matricula']
+    Local oJsRet	 := JsonObject():New()
+    
+	// Etapa para buscar Na SRA e verificar se existe o colaborador dentro do Protheus
+	DbSelectArea("SRA")
+	SRA->(DbSetOrder(1))
+	if !SRA->(DbSeek(cFila+cMatric))
+
+		oJsRet['code']		:= 404
+		oJsRet['status']	:= "ERRO"
+		oJsRet['mensagem']	:= "Colaborador Não encontrado no cadastro SRA, verifique filial e matrícula"
+		Return oJsRet
+
+	else
+
+		DbSelectArea("ZBC")
+		ZBC->(DbSetOrder(1))
+		if ZBC->(DbSeek(cFila+cMatric)) //SE EXISTIR EXIBIR MENSAGEM QUE O PERÍODO JÁ FOI CRIADO
+
+			oJsRet['code']		:= 409
+			oJsRet['status']	:= "ERRO"
+			oJsRet['mensagem']	:= "Colaborador Já existe no cadastro de crédido"
+			Return oJsRet
+
+		else
+			// RecLock("ZBC",.T.)
+			// 	ZBC->ZBC_FILIAL:= cFila
+			// 	ZBC->ZBC_MATRIC:= cMatric
+			// 	ZBC->ZBC_CLIENT:= oJson['client']
+			// 	ZBC->ZBC_LOJA  := oJson['loja']
+			// 	ZBC->ZBC_CIC   := oJson['cpf']
+			// 	ZBC->ZBC_VALCRD:= oJson['valorCredito']
+			// 	ZBC->ZBC_PERIOD:= cPeriodo
+			// 	ZBC->ZBC_SALDO := oJson['saldo']
+			// 	ZBC->ZBC_USRCRE:= CUSERNAME
+			// ZBC->(MsUnLock())
+
+			oJsRet['code']		:= 201
+			oJsRet['status']	:= "OK"
+			oJsRet['mensagem']	:= "Colaborador inserido com sucesso no Protheus!"
+			Return oJsRet
+
+		endif
+
+	endif
+
+Return

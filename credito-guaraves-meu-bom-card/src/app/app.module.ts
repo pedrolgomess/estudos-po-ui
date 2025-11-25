@@ -13,11 +13,13 @@ import { BuscarColaboradoresDinamicamenteComponent } from './buscar-colaboradore
 import {ColaboradoresListComponent} from './colaboradores-list/colaboradores-list.component'
 import { ProtheusLibCoreModule } from '@totvs/protheus-lib-core'; // Importing ProtheusLibCoreModule for Protheus integration
 import { FormsModule } from '@angular/forms';
+import { NovoColaboradorComponent } from './novo-colaborador/novo-colaborador.component';
 @NgModule({
   declarations: [
     AppComponent,
     BuscarColaboradoresDinamicamenteComponent,
-    ColaboradoresListComponent
+    ColaboradoresListComponent,
+    NovoColaboradorComponent
   ],
   imports: [
     BrowserModule,

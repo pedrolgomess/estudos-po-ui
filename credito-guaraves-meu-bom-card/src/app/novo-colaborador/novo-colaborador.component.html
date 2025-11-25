@@ -1,0 +1,86 @@
+<po-modal #modalNovoColaborador p-title="Novo Colaborador">
+
+  <div class="po-p-3">
+    <form>
+
+      <div class="po-row">
+
+        <!-- Filial -->
+        <po-input
+          class="po-md-6"
+          name="filial"
+          [(ngModel)]="filial"
+          p-label="Filial"
+          p-placeholder="Informe a filial"
+          p-required>
+        </po-input>
+
+        <!-- Matrícula -->
+        <po-input
+          class="po-md-6"
+          name="matricula"
+          [(ngModel)]="matricula"
+          p-label="Matrícula"
+          p-placeholder="Informe a matrícula"
+          p-required>
+        </po-input>
+
+      </div>
+
+      <div class="po-row">
+
+        <!-- Período -->
+        <po-input
+          class="po-md-6"
+          p-label="Novo Período"
+          name="periodo"
+          [(ngModel)]="periodo"
+          p-placeholder="Exemplo: 092025"
+          p-required>
+        </po-input>
+
+        <!-- Valor do Crédito -->
+        <po-number
+          class="po-md-6"
+          p-label="Valor do Crédito"
+          name="valorCredito"
+          [(ngModel)]="valorCredito"
+          (ngModelChange)="onValorCreditoChange($event)"
+          p-required>
+        </po-number>
+
+      </div>
+
+      <div class="po-row">
+        <po-info
+          class="po-md-12"
+          p-label="Saldo"
+          [p-value]="(saldo | currency:'BRL') || ''">
+        </po-info>
+      </div>
+      
+    </form>
+      <po-modal-footer [p-disabled-align]="false">
+
+      <po-button
+        p-label="Fechar"
+        p-danger="true"
+        (p-click)="modalNovoColaborador.close()">
+      </po-button>
+
+      <po-button
+        p-label="Limpar"
+        (p-click)="restaurarFormulario()">
+      </po-button>
+
+        <po-button
+          p-kind="primary"
+          p-label="Cadastrar Colaborador"
+          [p-loading]="isSaving"
+          [p-disabled]="isSaving"
+          (p-click)="salvarNovoColaborador()">
+        </po-button>
+
+    </po-modal-footer>
+  </div>
+</po-modal>
