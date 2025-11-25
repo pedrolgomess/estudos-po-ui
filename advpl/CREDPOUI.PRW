@@ -176,10 +176,12 @@ Static Function NovoCred(oJson)
 Return lOk
 
 Static Function NovoCola(oJson)
-    Local cFila    	 := oJson['filial']
-    Local cMatric    := oJson['matricula']
-    Local oJsRet	 := JsonObject():New()
-    
+    Local cFila    	:= oJson['filial']
+    Local cMatric   := oJson['matricula']
+	Local cPeriodo	:= oJson['periodo']
+    Local oJsRet	:= JsonObject():New()
+	Local cCpf		:= ''
+
 	// Etapa para buscar Na SRA e verificar se existe o colaborador dentro do Protheus
 	DbSelectArea("SRA")
 	SRA->(DbSetOrder(1))
@@ -202,17 +204,20 @@ Static Function NovoCola(oJson)
 			Return oJsRet
 
 		else
-			// RecLock("ZBC",.T.)
-			// 	ZBC->ZBC_FILIAL:= cFila
-			// 	ZBC->ZBC_MATRIC:= cMatric
-			// 	ZBC->ZBC_CLIENT:= oJson['client']
-			// 	ZBC->ZBC_LOJA  := oJson['loja']
-			// 	ZBC->ZBC_CIC   := oJson['cpf']
-			// 	ZBC->ZBC_VALCRD:= oJson['valorCredito']
-			// 	ZBC->ZBC_PERIOD:= cPeriodo
-			// 	ZBC->ZBC_SALDO := oJson['saldo']
-			// 	ZBC->ZBC_USRCRE:= CUSERNAME
-			// ZBC->(MsUnLock())
+			cCpf:= U_GETCPF(cMatric)
+			
+			RecLock("ZBC",.T.)
+				ZBC_FILIAL	:= 	cFila
+				ZBC_MATRIC	:= 	cMatric
+				ZBC_CLIENT	:= 	U_GETCOD(cCpf)
+				ZBC_LOJA  	:=	U_GETLOJA(cCpf)
+				ZBC_CIC   	:=	cCpf
+				ZBC_VALCRD	:=	oJson['valorCredito']
+				ZBC_PERIOD	:=	cPeriodo
+				ZBC_SALDO 	:=	oJson['saldo']
+				ZBC_USRCRE	:=	CUSERNAME
+				ZBC_NOME  	:=	U_GETNOME(cCpf)
+			ZBC->(MsUnLock())
 
 			oJsRet['code']		:= 201
 			oJsRet['status']	:= "OK"

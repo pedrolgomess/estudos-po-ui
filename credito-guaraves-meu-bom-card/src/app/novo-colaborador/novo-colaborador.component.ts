@@ -3,6 +3,7 @@ import { PoListViewAction, PoModalComponent, PoNotificationService } from '@po-u
 import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-core';
 import { Subscription, filter } from 'rxjs';
 import { NovoColaboradorService } from './novo-colaborador-service';
+import { SamplePoListViewHiringProcessesService } from '../colaboradores-list/sample-po-list-view-hiring-processes.service';
 
 @Component({
   selector: 'novo-colaborador',
@@ -12,7 +13,8 @@ export class NovoColaboradorComponent {
   notify = inject(PoNotificationService);
   proAppCfg = inject(ProAppConfigService);
   proAppAdvpl = inject(ProJsToAdvplService);
-  private hiringProcessesService = inject(NovoColaboradorService);
+  private novoColaboradorService = inject(NovoColaboradorService);
+  private colaboradoresListService = inject(SamplePoListViewHiringProcessesService)
 
   @HostListener('window:keydown', ['$event'])
   handleKeyBoardEvent(event: KeyboardEvent) {
@@ -76,7 +78,7 @@ export class NovoColaboradorComponent {
 
       const retorno = this.proAppCfg.insideProtheus()
         ? await this.aguardarRetornoNovoColaborador(dados)
-        : await this.hiringProcessesService.aguardarRetornoNovoColaboradorMock(dados);
+        : await this.novoColaboradorService.aguardarRetornoNovoColaboradorMock(dados);
 
       // --------------------------------------
       // 🔥 TRATAMENTO DOS CÓDIGOS DO BACKEND
@@ -86,6 +88,8 @@ export class NovoColaboradorComponent {
         this.notify.success(retorno.mensagem);
         this.modalNovoColaborador.close();
         this.restaurarFormulario();
+        // 🔥 ATUALIZA A LISTA NA TELA INICIAL
+        this.colaboradoresListService.recarregarLista();
         return;
       }
 
