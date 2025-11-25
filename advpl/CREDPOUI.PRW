@@ -204,19 +204,19 @@ Static Function NovoCola(oJson)
 			Return oJsRet
 
 		else
-			cCpf:= U_GETCPF(cMatric)
+			cCpf:= POSICIONE("SRA",1,cFila+cMatric,"RA_CIC")
 			
 			RecLock("ZBC",.T.)
 				ZBC_FILIAL	:= 	cFila
 				ZBC_MATRIC	:= 	cMatric
-				ZBC_CLIENT	:= 	U_GETCOD(cCpf)
-				ZBC_LOJA  	:=	U_GETLOJA(cCpf)
+				ZBC_CLIENT	:= 	POSICIONE("SA1",3,xFilial("SA1")+cCpf,"A1_COD")
+				ZBC_LOJA  	:=	POSICIONE("SA1",3,xFilial("SA1")+cCpf,"A1_LOJA")
 				ZBC_CIC   	:=	cCpf
 				ZBC_VALCRD	:=	oJson['valorCredito']
 				ZBC_PERIOD	:=	cPeriodo
 				ZBC_SALDO 	:=	oJson['saldo']
 				ZBC_USRCRE	:=	CUSERNAME
-				ZBC_NOME  	:=	U_GETNOME(cCpf)
+				ZBC_NOME  	:=	POSICIONE("SA1",3,xFilial("SA1")+cCpf,"A1_NOME")
 			ZBC->(MsUnLock())
 
 			oJsRet['code']		:= 201
