@@ -20,39 +20,25 @@ export class SamplePoListViewHiringProcessesService {
         cpf: "11111111111",
         nome: 'João Silva',
         cadastrado_por: 'pedro.lucas',
-        saldo_total: 200,
+        saldo_total: 300,
         historico: [
             {
             periodo: "092025",
             valor_credito: 100,
-            valor_saldo: 100
+            valor_saldo: 100,
+            periodo_atual: false
           },
           {
             periodo: "102025",
             valor_credito: 100,
-            valor_saldo: 100
-          }
-        ]
-      },
-      {
-        filial: '01',
-        matricula: '002',
-        client: 'XXXXXX',
-        loja: "01",
-        cpf: "11111111111",
-        nome: 'Pedro',
-        cadastrado_por: 'pedro.lucas',
-        saldo_total: 200,
-        historico: [
-            {
-            periodo: "092025",
-            valor_credito: 100,
-            valor_saldo: 100
+            valor_saldo: 100,
+            periodo_atual: false
           },
           {
-            periodo: "102025",
+            periodo: "112025",
             valor_credito: 100,
-            valor_saldo: 100
+            valor_saldo: 100,
+            periodo_atual: true
           }
         ]
       }

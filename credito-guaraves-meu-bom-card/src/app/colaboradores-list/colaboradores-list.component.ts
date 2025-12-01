@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, OnDestroy, HostListener, ViewChild } from '@angular/core';
-import { SamplePoListViewHiringProcessesService } from './sample-po-list-view-hiring-processes.service';
+import { SamplePoListViewHiringProcessesService } from './colaboradores-list.service';
 import { PoListViewAction, PoModalComponent, PoNotificationService } from '@po-ui/ng-components';
 import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-core';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'colaboradores-list',
-  templateUrl: './colaboradores-list.component.html'
+  templateUrl: './colaboradores-list.component.html',
+  styleUrls: ['./colaboradores-list.scss']
 })
 export class ColaboradoresListComponent implements OnInit, OnDestroy {
 

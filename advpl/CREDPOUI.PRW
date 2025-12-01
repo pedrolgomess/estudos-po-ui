@@ -132,6 +132,7 @@ Static Function xGetHis(cFilZBC, cMatZBC)
             oJsonHist['periodo']		:= ZBC->ZBC_PERIOD
             oJsonHist['valor_credito']	:= ZBC->ZBC_VALCRD
             oJsonHist['valor_saldo']	:= ZBC->ZBC_SALDO
+			oJsonHist['periodo_atual']	:= IIF(ZBC->ZBC_PERIOD == xretAtua(), .T., .F.)
             //
             nToSaldo+=ZBC->ZBC_SALDO
             //
@@ -229,3 +230,21 @@ Static Function NovoCola(oJson)
 	endif
 
 Return
+
+Static Function xretAtua()
+
+    Local cAno  := ""
+    Local cMes  := ""
+
+    // --- Calcula o mês anterior ---
+    If Month(dDataBase) == 1
+        // Janeiro ? volta para Dezembro do ano anterior
+        cAno := cValToChar( Year(dDataBase) - 1 )
+        cMes := "12"
+    Else
+        // Apenas retorna o mês anterior dentro do mesmo ano
+        cAno := cValToChar( Year(dDataBase ) )
+        cMes := StrZero( Month(dDataBase) - 1 , 2 )
+    EndIf
+
+Return cMes+cAno

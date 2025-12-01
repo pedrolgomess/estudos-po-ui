@@ -1,9 +1,8 @@
 import { Component, HostListener, inject, ViewChild } from '@angular/core';
-import { PoListViewAction, PoModalComponent, PoNotificationService } from '@po-ui/ng-components';
+import { PoModalComponent, PoNotificationService } from '@po-ui/ng-components';
 import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-core';
-import { Subscription, filter } from 'rxjs';
-import { NovoColaboradorService } from './novo-colaborador-service';
-import { SamplePoListViewHiringProcessesService } from '../colaboradores-list/sample-po-list-view-hiring-processes.service';
+import { NovoColaboradorService } from './novo-colaborador.service';
+import { SamplePoListViewHiringProcessesService } from '../colaboradores-list/colaboradores-list.service';
 
 @Component({
   selector: 'novo-colaborador',

@@ -29,11 +29,34 @@
         <div
           class="po-md-12"
           *ngFor="let hist of item.historico"
-          style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px;"
+          style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 16px;"
         >
-          <po-info class="po-md-4" p-label="Período" [p-value]="hist.periodo"></po-info>
-          <po-info class="po-md-4" p-label="Crédito" [p-value]="(hist.valor_credito | currency:'BRL') ?? ''"></po-info>
-          <po-info class="po-md-4" p-label="Saldo" [p-value]="(hist.valor_saldo | currency:'BRL') ?? ''"></po-info>
+          <po-info class="po-md-3" p-label="Período" [p-value]="hist.periodo"></po-info>
+
+          <po-info class="po-md-3" p-label="Crédito" 
+                  [p-value]="(hist.valor_credito | currency:'BRL') ?? ''">
+          </po-info>
+
+          <po-info class="po-md-3" p-label="Saldo" 
+                  [p-value]="(hist.valor_saldo | currency:'BRL') ?? ''">
+          </po-info>
+
+          <!-- Ações com espaçamento elegante -->
+          <div class="po-md-3 actions-container">
+            <ng-container *ngIf="hist.periodo_atual">
+              <po-button
+                p-label="Excluir Período"
+                p-danger="true"
+                (p-click)="modalNovoCredito.close()">
+              </po-button>
+
+              <po-button
+                p-label="Editar Período"
+                (p-click)="restaurarFormulario()">
+              </po-button>
+              
+            </ng-container>
+          </div>
         </div>
       </div>
     </ng-template>
