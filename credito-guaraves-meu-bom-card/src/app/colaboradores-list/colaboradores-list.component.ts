@@ -267,19 +267,21 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   // --------------------------------------------------------------------
   // EXCLUIR PERÍODO
   // --------------------------------------------------------------------
-  async excluirPeriodo(item: any){
+  async excluirPeriodo(item: any, hist: any){
 
     if (!item) {
       this.notify.error('Nenhum item selecionado!');
       return;
     }
-
+    console.log('OBJETO DADOS PARA EXCLUIR: ',item)
+    console.log('OBJETO DADOS PARA EXCLUIR: ',hist)
+    
     this.isSaving = true;
 
     const dados = {
       filial: item.filial,
       matricula: item.matricula,
-      periodo: item.periodo
+      periodo: hist.periodo
     };
 
     try {
