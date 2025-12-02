@@ -2,7 +2,7 @@ import { Component, HostListener, inject, ViewChild } from '@angular/core';
 import { PoModalComponent, PoNotificationService } from '@po-ui/ng-components';
 import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-core';
 import { NovoColaboradorService } from './novo-colaborador.service';
-import { SamplePoListViewHiringProcessesService } from '../colaboradores-list/colaboradores-list.service';
+import { ColaboradoresListService } from '../colaboradores-list/colaboradores-list.service';
 
 @Component({
   selector: 'novo-colaborador',
@@ -13,7 +13,7 @@ export class NovoColaboradorComponent {
   proAppCfg = inject(ProAppConfigService);
   proAppAdvpl = inject(ProJsToAdvplService);
   private novoColaboradorService = inject(NovoColaboradorService);
-  private colaboradoresListService = inject(SamplePoListViewHiringProcessesService)
+  private colaboradoresListService = inject(ColaboradoresListService)
 
   @HostListener('window:keydown', ['$event'])
   handleKeyBoardEvent(event: KeyboardEvent) {

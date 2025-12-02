@@ -1,8 +1,14 @@
-import { Component, OnInit, inject, OnDestroy, HostListener, ViewChild } from '@angular/core';
-import { SamplePoListViewHiringProcessesService } from './colaboradores-list.service';
-import { PoListViewAction, PoModalComponent, PoNotificationService } from '@po-ui/ng-components';
-import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, inject } from '@angular/core';
+import { PoModalComponent, PoNotificationService, PoListViewAction } from '@po-ui/ng-components';
+import { ColaboradoresListService } from './colaboradores-list.service';
+import { ProAppConfigService } from '@totvs/protheus-lib-core';
 import { Subscription, filter } from 'rxjs';
+
+// Utils
+import { validarPeriodoFinal, formatarCpf, calcularSaldo } from '../utils/colaboradores-utils';
+
+// Helpers
+import { prepararNovoCredito, prepararEdicaoPeriodo, restaurarFormulario as limparForm } from '../helpers/colaboradores-modal.helper';
 
 @Component({
   selector: 'colaboradores-list',
@@ -13,110 +19,47 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
   notify = inject(PoNotificationService);
   proAppCfg = inject(ProAppConfigService);
-  proAppAdvpl = inject(ProJsToAdvplService);
-  private hiringProcessesService = inject(SamplePoListViewHiringProcessesService);
+  protheusService = inject(ColaboradoresListService);
+  private hiringService = inject(ColaboradoresListService);
 
   private subscription = new Subscription();
 
-  @HostListener('window:keydown', ['$event'])
-  handleKeyBoardEvent(event: KeyboardEvent) {
-    if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) event.preventDefault();
-  }
-  //Modal de novo Crédito
-  @ViewChild('modalNovoCredito', { static: true }) modalNovoCredito!: PoModalComponent;
-
-  //Modal de editar Período
-  @ViewChild('modalEditarPeriodo', {static: true }) modalEditarPeriodo!: PoModalComponent;
+  @ViewChild('modalNovoCredito') modalNovoCredito!: PoModalComponent;
+  @ViewChild('modalEditarPeriodo') modalEditarPeriodo!: PoModalComponent;
 
   isSaving = false;
   isLoadingList = false;
 
-  hiringProcesses: Array<any> = [];
-  colaboradoresFiltrados: Array<object> = [];
-  modalDetail = false;
-
   selectedItem: any = null;
+  collaborators: any[] = [];
+  colaboradoresFiltrados: any[] = [];
+
   periodo = '';
   valorCredito: number | null = null;
   saldo: number | null = null;
 
-  // -----------------------------------------------------
+  // --------------------------------------------------------------------
   // INIT
-  // -----------------------------------------------------
+  // --------------------------------------------------------------------
   async ngOnInit() {
-
     this.isLoadingList = true;
 
-    // Atualiza a lista sempre que o serviço emitir uma nova
     this.subscription.add(
-      this.hiringProcessesService.getListZBC()
-        .pipe(filter(lista => !!lista)) // ignora emissão inicial null
+      this.hiringService.getListZBC()
+        .pipe(filter(l => !!l))
         .subscribe(lista => {
-          this.hiringProcesses = lista;
+          this.collaborators = lista;
           this.colaboradoresFiltrados = [...lista];
           this.isLoadingList = false;
         })
     );
 
-    // Quando o service mandar recarregar → executa recarregarLista()
     this.subscription.add(
-      this.hiringProcessesService.solicitarRecarregarLista$
+      this.hiringService.solicitarRecarregarLista$
         .subscribe(() => this.recarregarLista())
     );
 
-    // Primeira carga
     this.carregarListaInicial();
-  }
-
-  // -----------------------------------------------------
-  // PRIMEIRA CARGA
-  // -----------------------------------------------------
-  private async carregarListaInicial() {
-    if (this.proAppCfg.insideProtheus()) {
-      this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
-      const content = await this.aguardarLoadZBCLibCore();
-      this.hiringProcessesService.loadZBCLibCore(content);
-    } else {
-      this.hiringProcessesService.loadZBC();
-    }
-  }
-
-  // -----------------------------------------------------
-  // PROTHEUS - AGUARDAR LOCALESTORAGE
-  // -----------------------------------------------------
-  aguardarLoadZBCLibCore(): Promise<string> {
-    return new Promise(resolve => {
-      const intervalo = setInterval(() => {
-        const item = localStorage.getItem('loadZBCLibCore');
-        if (item !== null) {
-          clearInterval(intervalo);
-          resolve(item);
-        }
-      }, 100);
-    });
-  }
-
-  // -----------------------------------------------------
-  // RECARREGAR LISTA
-  // -----------------------------------------------------
-  recarregarLista() {
-    this.isLoadingList = true;
-
-    if (this.proAppCfg.insideProtheus()) {
-      this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
-      this.aguardarLoadZBCLibCore().then(content => {
-        this.hiringProcessesService.loadZBCLibCore(content);
-      });
-    } else {
-      this.hiringProcessesService.loadZBC();
-    }
-  }
-
-  // -----------------------------------------------------
-  // DESTROY
-  // -----------------------------------------------------
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 
   formatTitle(item: any) {
@@ -124,59 +67,72 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   }
 
   showDetail() {
-    return this.modalDetail;
+    return false;
   }
-  // -----------------------------------------------------
-  // FILTROS
-  // -----------------------------------------------------
-  filtrarPorBuscaRapida(search: string) {
-    const termo = search.toLowerCase();
-    this.colaboradoresFiltrados = this.hiringProcesses.filter(col =>
-      col.nome.toLowerCase().includes(termo) || col.matricula.includes(termo)
-    );
-  }
-
-  filtrarBuscaAvancada(filters: any) {
-    this.colaboradoresFiltrados = this.hiringProcesses.filter(col => {
-      const nomeOk = !filters.nome || col.nome.toLowerCase().includes(filters.nome.toLowerCase());
-      const matriculaOk = !filters.matricula || col.matricula.includes(filters.matricula);
-      return nomeOk && matriculaOk;
-    });
+  carregarListaInicial() {
+    if (this.proAppCfg.insideProtheus()) {
+      this.protheusService.aguardarLoadZBCLibCore().then(content =>
+        this.hiringService.loadZBCLibCore(content)
+      );
+    } else {
+      this.hiringService.loadZBC();
+    }
   }
 
+  recarregarLista() {
+    this.isLoadingList = true;
+    this.carregarListaInicial();
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  // --------------------------------------------------------------------
+  // MODAL
+  // --------------------------------------------------------------------
+  abrirNovoCredito(item: any) {
+    prepararNovoCredito(this, item);
+  }
   // -----------------------------------------------------
   // AÇÕES
   // -----------------------------------------------------
   readonly actions: Array<PoListViewAction> = [
     { label: 'Novo Crédito', icon: 'po-icon-plus', action: (item: any) => this.abrirNovoCredito(item) }
   ];
-
-  abrirNovoCredito(item: any) {
-    this.selectedItem = item;
-    this.periodo = '';
-    this.valorCredito = null;
-    this.saldo = null;
-    this.modalNovoCredito.open();
+  
+  // -----------------------------------------------------
+  // FILTROS
+  // -----------------------------------------------------
+  filtrarPorBuscaRapida(search: string) {
+    const termo = search.toLowerCase();
+    this.colaboradoresFiltrados = this.collaborators.filter(col =>
+      col.nome.toLowerCase().includes(termo) || col.matricula.includes(termo)
+    );
   }
 
+  filtrarBuscaAvancada(filters: any) {
+    this.colaboradoresFiltrados = this.collaborators.filter(col => {
+      const nomeOk = !filters.nome || col.nome.toLowerCase().includes(filters.nome.toLowerCase());
+      const matriculaOk = !filters.matricula || col.matricula.includes(filters.matricula);
+      return nomeOk && matriculaOk;
+    });
+  }
   abrirEditarNovoPeriodo(item: any, hist: any) {
-    this.selectedItem = item;
-
-    this.periodo = hist.periodo;
-    this.valorCredito = hist.valor_credito;
-    this.saldo = hist.valor_saldo;
-
-    this.modalEditarPeriodo.open();
+    prepararEdicaoPeriodo(this, item, hist);
   }
-
 
   onValorCreditoChange(value: any) {
-    this.saldo = Number(value) || 0;
+    this.saldo = calcularSaldo(value);
   }
 
-  // -----------------------------------------------------
+  restaurarFormulario(){
+    limparForm(this)
+  }
+
+  // --------------------------------------------------------------------
   // SALVAR CRÉDITO
-  // -----------------------------------------------------
+  // --------------------------------------------------------------------
   async salvarCredito() {
 
     if (!this.periodo || !this.valorCredito) {
@@ -184,14 +140,13 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.validarPeriodoFinal()) {
-      this.notify.warning('Período inválido. Use MMYYYY, ex: 092025');
-      return;
-    }
-
     if (!this.valorCredito) {
       this.notify.warning('Preencha o valor do crédito.');
       return;
+    }
+
+    if (!validarPeriodoFinal(this.periodo)) {
+      return this.notify.warning('Período inválido. Use MMYYYY.');
     }
 
     this.isSaving = true;
@@ -209,65 +164,21 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
     try {
       const retorno = this.proAppCfg.insideProtheus()
-        ? await this.aguardarRetornoCredito(dados)
-        : await this.hiringProcessesService.aguardarRetornoCreditoMock(dados);
+        ? await this.protheusService.aguardarRetornoCredito(dados)
+        : await this.hiringService.aguardarRetornoCreditoMock(dados);
 
       this.notify.success(retorno.mensagem);
       this.modalNovoCredito.close();
-      this.restaurarFormulario();
+      limparForm(this);
 
-      // 🔥 dispara recarga geral
-      this.hiringProcessesService.recarregarLista();
+      this.hiringService.recarregarLista();
 
-    } catch (err: any) {
-      this.notify.error(err?.mensagem || 'Erro ao salvar crédito!');
     } finally {
       this.isSaving = false;
     }
   }
 
-
-  restaurarFormulario() {
-    this.periodo = '';
-    this.valorCredito = null;
-    this.saldo = null;
-  }
-
-  aguardarRetornoCredito(payload: any): Promise<any> {
-    this.proAppAdvpl.jsToAdvpl('salvarCredito', JSON.stringify(payload));
-
-    return new Promise((resolve, reject) => {
-      const intervalo = setInterval(() => {
-        const item = localStorage.getItem('salvarCredito');
-
-        if (item) {
-          clearInterval(intervalo);
-          localStorage.removeItem('salvarCredito');
-
-          try {
-            const json = JSON.parse(item);
-            json.status === 'OK'
-              ? resolve({ mensagem: json.mensagem })
-              : reject({ mensagem: json.mensagem });
-
-          } catch {
-            reject({ mensagem: 'Erro ao interpretar retorno!' });
-          }
-        }
-      }, 100);
-    });
-  }
-
-  validarPeriodoFinal(): boolean {
-    const valor = this.periodo || '';
-    if (valor.length !== 6) return false;
-    return /^(0[1-9]|1[0-2])(19|20)\d{2}$/.test(valor);
-  }
-
-  formatarCpf(cpf: string | undefined): string {
-    if (!cpf) return '';
-    cpf = cpf.replace(/\D/g, '');
-    if (cpf.length !== 11) return cpf;
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  formatarCpf(cpf: string) {
+    return formatarCpf(cpf);
   }
 }

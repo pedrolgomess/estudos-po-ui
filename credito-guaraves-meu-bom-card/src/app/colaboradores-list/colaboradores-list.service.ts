@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { ProJsToAdvplService } from '@totvs/protheus-lib-core';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SamplePoListViewHiringProcessesService {
+export class ColaboradoresListService {
 
   private listZBC$ = new BehaviorSubject<Array<any>>([]);
   public solicitarRecarregarLista$ = new BehaviorSubject<boolean>(false);
-  constructor(){}
+  constructor(private proAppAdvpl: ProJsToAdvplService){}
 
   public loadZBC() {
     let listZBC: Array<any> = [
@@ -77,5 +78,42 @@ export class SamplePoListViewHiringProcessesService {
   }
   recarregarLista() {
     this.solicitarRecarregarLista$.next(true);
+  }
+  
+  aguardarLoadZBCLibCore(): Promise<string> {
+    return new Promise(resolve => {
+      const intervalo = setInterval(() => {
+        const item = localStorage.getItem('loadZBCLibCore');
+        if (item) {
+          clearInterval(intervalo);
+          resolve(item);
+        }
+      }, 100);
+    });
+  }
+
+  aguardarRetornoCredito(payload: any): Promise<any> {
+    this.proAppAdvpl.jsToAdvpl('salvarCredito', JSON.stringify(payload));
+
+    return new Promise((resolve, reject) => {
+      const intervalo = setInterval(() => {
+        const item = localStorage.getItem('salvarCredito');
+
+        if (item) {
+          clearInterval(intervalo);
+          localStorage.removeItem('salvarCredito');
+
+          try {
+            const json = JSON.parse(item);
+            json.status === 'OK'
+              ? resolve(json)
+              : reject(json);
+
+          } catch {
+            reject({ mensagem: 'Erro ao interpretar retorno!' });
+          }
+        }
+      }, 100);
+    });
   }
 }
