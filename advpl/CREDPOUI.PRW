@@ -89,6 +89,24 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 				oWebChannel:advplToJs('editarPeriodo', oJsRetNo:toJson())
 
 			EndCase
+		
+		case cType == 'excluirPeriodo'
+
+			//Recebendo conteudo do Json passando para fromJson
+			oJsEdit:fromJson(cContent)
+
+			// Executa a função
+			oJsRetNo:= ExclPeri(oJsEdit)
+
+			// Retorno para o Angular
+			Do Case
+
+			Case oJsRetNo['code'] == 201
+				oWebChannel:advplToJs('excluirPeriodo', oJsRetNo:toJson())
+				// ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
+				cListaAtualizada := fnLoadZBC()
+				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
+			EndCase
     end case
     
 Return .T.
@@ -334,4 +352,29 @@ Static Function EditPeri(oJson)
 		Return oJsRet
 
 	endif
+Return
+
+Static Function ExclPeri(oJson)
+
+	Local cFila    	 := oJson['filial']
+    Local cMatric    := oJson['matricula']
+    Local cPeriodo   := oJson['periodo']
+	Local oJsRet	 := JsonObject():New()
+	
+	// Inserir um novo registro em ZBC010
+    DbSelectArea("ZBC")
+	ZBC->(DbSetOrder(4))
+	if ZBC->(DbSeek(cFila+cMatric+cPeriodo)) //Alterando o período atual
+
+		RecLock("ZBC",.F.)
+			ZBC->(DbDelete())
+		ZBC->(MsUnLock())
+
+		oJsRet['code']		:= 201
+		oJsRet['status']	:= "OK"
+		oJsRet['mensagem']	:= "Período excluído com sucesso no Protheus!"
+		Return oJsRet
+
+	endif
+
 Return

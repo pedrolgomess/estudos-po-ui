@@ -263,4 +263,38 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.isSaving = false;
     }
   }
+  
+  // --------------------------------------------------------------------
+  // EXCLUIR PERÍODO
+  // --------------------------------------------------------------------
+  async excluirPeriodo(item: any){
+
+    if (!item) {
+      this.notify.error('Nenhum item selecionado!');
+      return;
+    }
+
+    this.isSaving = true;
+
+    const dados = {
+      filial: item.filial,
+      matricula: item.matricula,
+      periodo: this.periodo
+    };
+
+    try {
+      const retorno = this.proAppCfg.insideProtheus()
+        ? await this.colaboradoresService.aguardarRetornoExclusaoPeriodo(dados)
+        : await this.colaboradoresService.aguardarRetornoExclusaoPeriodoMock(dados);
+
+      this.notify.success(retorno.mensagem);
+      this.colaboradoresService.recarregarLista();
+
+    } catch (err: any) {
+      this.notify.error(err?.mensagem || 'Erro ao excluir período!');
+    } finally {
+      this.isSaving = false;
+    }
+  }
+
 }

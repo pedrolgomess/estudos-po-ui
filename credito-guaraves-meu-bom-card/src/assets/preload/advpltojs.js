@@ -12,4 +12,7 @@ function JsToAdvpl(codeType, content){
     if (codeType == 'editarPeriodo') {
         localStorage.setItem('editarPeriodo',content);
     }
+    if (codeType == 'excluirPeriodo') {
+        localStorage.setItem('excluirPeriodo',content);
+    }
 }
