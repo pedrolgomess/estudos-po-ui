@@ -136,4 +136,54 @@ export class ColaboradoresListService {
       }, 100);
     });
   }
+
+  // 🟢 MÉTODO MOCK — simula retorno
+  aguardarRetornoPeriodoMock(payload: any): Promise<any> {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          mensagem: 'Crédito alterado com sucesso (mock)!'
+        });
+      }, 1500);
+    });
+  }
+  
+  aguardarRetornoPeriodo(payload: any): Promise<any> {
+    this.proAppAdvpl.jsToAdvpl('editarPeriodo', JSON.stringify(payload));
+
+    return new Promise((resolve, reject) => {
+      const intervalo = setInterval(() => {
+        const item = localStorage.getItem('editarPeriodo');
+
+        if (item) {
+          clearInterval(intervalo);
+          localStorage.removeItem('editarPeriodo');
+
+          try {
+            const json = JSON.parse(item);
+
+            // 🔥 Garantir retorno padronizado
+            const retorno = {
+              code: json.code,
+              status: json.status,
+              mensagem: json.mensagem
+            };
+
+            if (json.status === 'OK') {
+              resolve(retorno);
+            } else {
+              reject(retorno);
+            }
+
+          } catch {
+            reject({
+              code: 500,
+              status: 'ERRO',
+              mensagem: 'Erro ao interpretar retorno!'
+            });
+          }
+        }
+      }, 100);
+    });
+  }
 }

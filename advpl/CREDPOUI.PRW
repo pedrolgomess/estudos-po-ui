@@ -14,6 +14,7 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
     do case 
 
         case cType == 'loadZBCLibCore'
+
             cContent := fnLoadZBC()
             oWebChannel:advplToJs('loadZBCLibCore',cContent)
 
@@ -69,14 +70,25 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 			EndCase
 			
 		case cType == 'editarPeriodo'
-			oJsEdit:fromJson(cContent)	
+
+			//Recebendo conteudo do Json passando para fromJson
+			oJsEdit:fromJson(cContent)
+
+			// Executa a função
+			oJsRetNo:= EditPeri(oJsEdit)
+
 			// Retorno para o Angular
-			If EditPeri(oJsEdit)
-				oWebChannel:advplToJs('editarPeriodo', '{"status":"OK","mensagem":"Período Ajustado com sucesso"}')
+			Do Case
+			Case oJsRetNo['code'] == 201
+				oWebChannel:advplToJs('editarPeriodo', oJsRetNo:toJson())
 				// ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
 				cListaAtualizada := fnLoadZBC()
 				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
-			EndIf
+
+			Case oJsRetNo['code'] == 422
+				oWebChannel:advplToJs('editarPeriodo', oJsRetNo:toJson())
+
+			EndCase
     end case
     
 Return .T.
@@ -295,9 +307,18 @@ Static Function EditPeri(oJson)
     Local cFila    	 := oJson['filial']
     Local cMatric    := oJson['matricula']
     Local cPeriodo   := oJson['periodo']
+	Local cPerAtua	 := xretAtua()
+	Local oJsRet	 := JsonObject():New()
+	
+	// 1° Condição para validar o período
+	if Alltrim(cPeriodo) != Alltrim(cPerAtua)
+		oJsRet['code']		:= 422
+		oJsRet['status']	:= "ERRO"
+		oJsRet['mensagem']	:= "O período inserido: "+cPeriodo+ " é diferente do período atual: "+ cPerAtua
+		Return oJsRet
+	endif
 
-    Local lOk        := .T.
-    // Inserir um novo registro em ZBC010
+	// Inserir um novo registro em ZBC010
     DbSelectArea("ZBC")
 	ZBC->(DbSetOrder(4))
 	if ZBC->(DbSeek(cFila+cMatric+cPeriodo)) //Alterando o período atual
@@ -306,6 +327,11 @@ Static Function EditPeri(oJson)
 			ZBC->ZBC_SALDO := oJson['saldo']
 			ZBC->ZBC_USRCRE:= CUSERNAME
 		ZBC->(MsUnLock())
+
+		oJsRet['code']		:= 201
+		oJsRet['status']	:= "OK"
+		oJsRet['mensagem']	:= "Crédito inserido com sucesso no Protheus!"
+		Return oJsRet
+
 	endif
-	
-Return lOk
+Return

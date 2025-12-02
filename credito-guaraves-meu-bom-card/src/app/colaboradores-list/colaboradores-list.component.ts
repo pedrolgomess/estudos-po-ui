@@ -216,4 +216,51 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   formatarCpf(cpf: string) {
     return formatarCpfUtil(cpf);
   }
+
+  // --------------------------------------------------------------------
+  // EDITAR PERÍODO
+  // --------------------------------------------------------------------
+  async alterarPeriodo() {
+
+    if (!this.periodo || !this.valorCredito) {
+      this.notify.warning('Preencha o período e o valor do crédito.');
+      return;
+    }
+
+    if (!this.valorCredito) {
+      this.notify.warning('Preencha o valor do crédito.');
+      return;
+    }
+
+    if (!validarPeriodoFinalUtil(this.periodo)) {
+      return this.notify.warning('Período inválido. Use MMYYYY.');
+    }
+
+    this.isSaving = true;
+
+    const dados = {
+      filial: this.selectedItem.filial,
+      matricula: this.selectedItem.matricula,
+      periodo: this.periodo,
+      valorCredito: this.valorCredito,
+      saldo: this.saldo
+    };
+
+    try {
+      const retorno = this.proAppCfg.insideProtheus()
+        ? await this.colaboradoresService.aguardarRetornoPeriodo(dados)
+        : await this.colaboradoresService.aguardarRetornoPeriodoMock(dados);
+
+      this.notify.success(retorno.mensagem);
+      this.modalEditarPeriodo.close();
+      limparForm(this);
+
+      this.colaboradoresService.recarregarLista();
+
+    } catch (err: any) {
+      this.notify.error(err?.mensagem || 'Erro ao alterar período!');
+    } finally {
+      this.isSaving = false;
+    }
+  }
 }
