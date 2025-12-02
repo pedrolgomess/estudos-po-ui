@@ -111,12 +111,26 @@ export class ColaboradoresListService {
 
           try {
             const json = JSON.parse(item);
-            json.status === 'OK'
-              ? resolve(json)
-              : reject(json);
+
+            // 🔥 Garantir retorno padronizado
+            const retorno = {
+              code: json.code,
+              status: json.status,
+              mensagem: json.mensagem
+            };
+
+            if (json.status === 'OK') {
+              resolve(retorno);
+            } else {
+              reject(retorno);
+            }
 
           } catch {
-            reject({ mensagem: 'Erro ao interpretar retorno!' });
+            reject({
+              code: 500,
+              status: 'ERRO',
+              mensagem: 'Erro ao interpretar retorno!'
+            });
           }
         }
       }, 100);

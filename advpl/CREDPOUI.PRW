@@ -13,30 +13,33 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 
     do case 
 
-        case cType == 'mensagemjs'
-            // Exemplo de mensagem
-            // oWebChannel:sendMessage({type: 'mensagemjs', content: 'Mensagem de teste'})
-            fwAlertInfo(cContent, "Mensagem JS")
-        
-        case cType == 'mensagemProtheus'     
-            oWebChannel:advplToJs('mensagemProtheus','Olá do Protheus!')
-
         case cType == 'loadZBCLibCore'
             cContent := fnLoadZBC()
             oWebChannel:advplToJs('loadZBCLibCore',cContent)
 
         case cType == 'salvarCredito'
 
+			//Recebendo conteudo do Json passando para fromJson
 			oJsNovoC:fromJson(cContent)
+
+			// Executa a função
+			oJsRetNo:= NovoCred(oJsNovoC)
+			
 			// Retorno para o Angular
-			If NovoCred(oJsNovoC)
-				oWebChannel:advplToJs('salvarCredito', '{"status":"OK","mensagem":"Crédito inserido com sucesso no Protheus!"}')
-				    // ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
-					cListaAtualizada := fnLoadZBC()
-					oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
-			Else
-				oWebChannel:advplToJs('salvarCredito', '{"status":"ERRO","mensagem":"Colaborador Já com Crédito neste periodo"}')
-			EndIf
+			Do Case
+			Case oJsRetNo['code'] == 201
+				oWebChannel:advplToJs('salvarCredito', oJsRetNo:toJson())
+				// ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
+				cListaAtualizada := fnLoadZBC()
+				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
+
+			Case oJsRetNo['code'] == 400
+				oWebChannel:advplToJs('salvarCredito', oJsRetNo:toJson())
+
+			Case oJsRetNo['code'] == 409
+				oWebChannel:advplToJs('salvarCredito', oJsRetNo:toJson())
+
+			EndCase
 
 		case cType == 'novoColaborador'
 
@@ -54,6 +57,9 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 				cListaAtualizada := fnLoadZBC()
 				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
 
+			Case oJsRetNo['code'] == 400
+				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
+
 			Case oJsRetNo['code'] == 404
 				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
 
@@ -61,6 +67,7 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
 
 			EndCase
+			
 		case cType == 'editarPeriodo'
 			oJsEdit:fromJson(cContent)	
 			// Retorno para o Angular
@@ -158,14 +165,27 @@ Static Function NovoCred(oJson)
     Local cFila    	 := oJson['filial']
     Local cMatric    := oJson['matricula']
     Local cPeriodo   := oJson['periodo']
-    //Local nValor     := Val(oJson['valorCredito'])
-    //Local nSaldo     := Val(oJson['saldo'])
-    Local lOk        := .T.
-    // Inserir um novo registro em ZBC010
+	Local cPerAtua	 := xretAtua()
+	Local oJsRet	:= JsonObject():New()
+
     DbSelectArea("ZBC")
 	ZBC->(DbSetOrder(4))
+	
+	// 1° Condição para validar o período
+	if Alltrim(cPeriodo) != Alltrim(cPerAtua)
+		oJsRet['code']		:= 400
+		oJsRet['status']	:= "ERRO"
+		oJsRet['mensagem']	:= "O período inserido: "+cPeriodo+ "é diferente do período atual: "+ cPerAtua
+		Return oJsRet
+	endif
+	
+	// 2° Condição para na ZBC
 	if ZBC->(DbSeek(cFila+cMatric+cPeriodo)) //SE EXISTIR EXIBIR MENSAGEM QUE O PERÍODO JÁ FOI CRIADO
-		lOk := .F.
+
+		oJsRet['code']		:= 409
+		oJsRet['status']	:= "ERRO"
+		oJsRet['mensagem']	:= "Já Existe este crédito neste período"
+		Return oJsRet
 	else
 		RecLock("ZBC",.T.)
 			ZBC->ZBC_FILIAL:= cFila
@@ -178,7 +198,11 @@ Static Function NovoCred(oJson)
 			ZBC->ZBC_SALDO := oJson['saldo']
 			ZBC->ZBC_USRCRE:= CUSERNAME
 		ZBC->(MsUnLock())
-		lOk := .T.
+
+		oJsRet['code']		:= 201
+		oJsRet['status']	:= "OK"
+		oJsRet['mensagem']	:= "Crédito inserido com sucesso no Protheus!"
+		Return oJsRet
 		
 	endif
 
@@ -188,8 +212,17 @@ Static Function NovoCola(oJson)
     Local cFila    	:= oJson['filial']
     Local cMatric   := oJson['matricula']
 	Local cPeriodo	:= oJson['periodo']
+	Local cPerAtua	 := xretAtua()
     Local oJsRet	:= JsonObject():New()
 	Local cCpf		:= ''
+
+	// 1° Condição para validar o período
+	if Alltrim(cPeriodo) != Alltrim(cPerAtua)
+		oJsRet['code']		:= 400
+		oJsRet['status']	:= "ERRO"
+		oJsRet['mensagem']	:= "O período inserido: "+cPeriodo+ "é diferente do período atual: "+ cPerAtua
+		Return oJsRet
+	endif
 
 	// Etapa para buscar Na SRA e verificar se existe o colaborador dentro do Protheus
 	DbSelectArea("SRA")
