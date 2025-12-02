@@ -8,7 +8,7 @@ import { ProJsToAdvplService } from '@totvs/protheus-lib-core';
 import { validarPeriodoFinalUtil, formatarCpfUtil, calcularSaldoUtil } from '../utils/colaboradores-utils';
 
 // Helpers
-import { prepararNovoCreditoHelper, prepararEdicaoPeriodoHelper, restaurarFormularioHelper as limparForm } from '../helpers/colaboradores-modal.helper';
+import { prepararNovoCreditoHelper, prepararEdicaoPeriodoHelper, restaurarFormularioCreditoHelper as limparForm } from '../helpers/colaboradores-modal.helper';
 
 @Component({
   selector: 'colaboradores-list',

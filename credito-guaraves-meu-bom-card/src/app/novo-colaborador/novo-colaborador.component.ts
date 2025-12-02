@@ -8,7 +8,7 @@ import { ColaboradoresListService } from '../colaboradores-list/colaboradores-li
 import { validarPeriodoFinalUtil, calcularSaldoUtil } from '../utils/colaboradores-utils';
 
 // Helpers
-import { prepararNovoColaboradorHelper, restaurarFormularioHelper as limparForm } from '../helpers/colaboradores-modal.helper';
+import { prepararNovoColaboradorHelper, restaurarFormularioColaboradorHelper as limparForm } from '../helpers/colaboradores-modal.helper';
 
 @Component({
   selector: 'novo-colaborador',
