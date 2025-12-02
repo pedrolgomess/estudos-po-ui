@@ -5,10 +5,10 @@ import { NovoColaboradorService } from './novo-colaborador.service';
 import { ColaboradoresListService } from '../colaboradores-list/colaboradores-list.service';
 
 // Utils
-import { validarPeriodoFinalUtil, formatarCpfUtil, calcularSaldoUtil } from '../utils/colaboradores-utils';
+import { validarPeriodoFinalUtil, calcularSaldoUtil } from '../utils/colaboradores-utils';
 
 // Helpers
-import { prepararNovoCreditoHelper, prepararEdicaoPeriodoHelper, restaurarFormularioHelper as limparForm } from '../helpers/colaboradores-modal.helper';
+import { prepararNovoColaboradorHelper, restaurarFormularioHelper as limparForm } from '../helpers/colaboradores-modal.helper';
 
 @Component({
   selector: 'novo-colaborador',
@@ -38,7 +38,7 @@ export class NovoColaboradorComponent {
   saldo: number | null = null;
 
   abrirModal() {
-    this.modalNovoColaborador.open();
+    prepararNovoColaboradorHelper(this);
   }
 
   // --------------------------------------------------------------------

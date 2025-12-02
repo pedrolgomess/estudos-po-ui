@@ -19,3 +19,7 @@ export function restaurarFormularioHelper(component: any) {
   component.valorCredito = null;
   component.saldo = null;
 }
+
+export function prepararNovoColaboradorHelper(component: any) {
+    component.modalNovoColaborador.open();
+  }
