@@ -8,7 +8,7 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 	// cContent vem como JSON enviado pelo Angular
 	Local oJsNovoC 	:= JsonObject():New()
 	Local oJsRetNo	:= JsonObject():New()
-
+	Local oJsEdit	:= JsonObject():New()
 	Local cListaAtualizada := ''
 
     do case 
@@ -61,7 +61,15 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
 
 			EndCase
-
+		case cType == 'editarPeriodo'
+			oJsEdit:fromJson(cContent)	
+			// Retorno para o Angular
+			If EditPeri(oJsEdit)
+				oWebChannel:advplToJs('editarPeriodo', '{"status":"OK","mensagem":"Período Ajustado com sucesso"}')
+				// ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
+				cListaAtualizada := fnLoadZBC()
+				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
+			EndIf
     end case
     
 Return .T.
@@ -248,3 +256,23 @@ Static Function xretAtua()
     EndIf
 
 Return cMes+cAno
+
+Static Function EditPeri(oJson)
+
+    Local cFila    	 := oJson['filial']
+    Local cMatric    := oJson['matricula']
+    Local cPeriodo   := oJson['periodo']
+
+    Local lOk        := .T.
+    // Inserir um novo registro em ZBC010
+    DbSelectArea("ZBC")
+	ZBC->(DbSetOrder(4))
+	if ZBC->(DbSeek(cFila+cMatric+cPeriodo)) //Alterando o período atual
+		RecLock("ZBC",.F.)
+			ZBC->ZBC_VALCRD:= oJson['valorCredito']
+			ZBC->ZBC_SALDO := oJson['saldo']
+			ZBC->ZBC_USRCRE:= CUSERNAME
+		ZBC->(MsUnLock())
+	endif
+	
+Return lOk

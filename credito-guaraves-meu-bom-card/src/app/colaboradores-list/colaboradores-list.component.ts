@@ -22,9 +22,11 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   handleKeyBoardEvent(event: KeyboardEvent) {
     if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) event.preventDefault();
   }
-
+  //Modal de novo Crédito
   @ViewChild('modalNovoCredito', { static: true }) modalNovoCredito!: PoModalComponent;
-  @ViewChild('periodoInput', { static: false }) periodoInput: any;
+
+  //Modal de editar Período
+  @ViewChild('modalEditarPeriodo', {static: true }) modalEditarPeriodo!: PoModalComponent;
 
   isSaving = false;
   isLoadingList = false;
@@ -156,6 +158,17 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     this.saldo = null;
     this.modalNovoCredito.open();
   }
+
+  abrirEditarNovoPeriodo(item: any, hist: any) {
+    this.selectedItem = item;
+
+    this.periodo = hist.periodo;
+    this.valorCredito = hist.valor_credito;
+    this.saldo = hist.valor_saldo;
+
+    this.modalEditarPeriodo.open();
+  }
+
 
   onValorCreditoChange(value: any) {
     this.saldo = Number(value) || 0;
