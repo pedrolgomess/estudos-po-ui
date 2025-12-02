@@ -21,5 +21,10 @@ export function restaurarFormularioHelper(component: any) {
 }
 
 export function prepararNovoColaboradorHelper(component: any) {
+    component.filial = '';
+    component.matricula = '';
+    component.periodo = '';
+    component.valorCredito = null;
+    component.saldo = null;
     component.modalNovoColaborador.open();
   }
