@@ -263,7 +263,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       this.isSaving = false;
     }
   }
-  
+
   // --------------------------------------------------------------------
   // EXCLUIR PERÍODO
   // --------------------------------------------------------------------
@@ -279,7 +279,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     const dados = {
       filial: item.filial,
       matricula: item.matricula,
-      periodo: this.periodo
+      periodo: item.periodo
     };
 
     try {
