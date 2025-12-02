@@ -4,6 +4,12 @@ import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-co
 import { NovoColaboradorService } from './novo-colaborador.service';
 import { ColaboradoresListService } from '../colaboradores-list/colaboradores-list.service';
 
+// Utils
+import { validarPeriodoFinalUtil, formatarCpfUtil, calcularSaldoUtil } from '../utils/colaboradores-utils';
+
+// Helpers
+import { prepararNovoCreditoHelper, prepararEdicaoPeriodoHelper, restaurarFormularioHelper as limparForm } from '../helpers/colaboradores-modal.helper';
+
 @Component({
   selector: 'novo-colaborador',
   templateUrl: './novo-colaborador.component.html'
@@ -23,8 +29,6 @@ export class NovoColaboradorComponent {
   @ViewChild('modalNovoColaborador', { static: false })
   modalNovoColaborador!: PoModalComponent;
 
-  @ViewChild('periodoInput', { static: false }) periodoInput: any;
-
   isSaving = false;
   selectedItem: any = null;
   filial = '';
@@ -37,19 +41,22 @@ export class NovoColaboradorComponent {
     this.modalNovoColaborador.open();
   }
 
-  restaurarFormulario() {
-    this.filial = '';
-    this.matricula = '';
-    this.periodo = '';
-    this.valorCredito = null;
-    this.saldo = null;
+  // --------------------------------------------------------------------
+  // RESTAURAR FORMULÁRIO
+  // --------------------------------------------------------------------
+  restaurarFormulario(){
+    limparForm(this)
   }
 
+  // --------------------------------------------------------------------
+  // CHANGE DO VALOR 
+  // --------------------------------------------------------------------
   onValorCreditoChange(value: any) {
-    this.saldo = Number(value) || 0;
+    this.saldo = calcularSaldoUtil(value);
   }
+
   // -----------------------------------------------------
-  // SALVAR CRÉDITO
+  // SALVAR NOVO COLABORADOR
   // -----------------------------------------------------
   async salvarNovoColaborador() {
 
@@ -58,7 +65,12 @@ export class NovoColaboradorComponent {
       return;
     }
 
-    if (!this.validarPeriodoFinal()) {
+    if (!this.valorCredito) {
+      this.notify.warning('Preencha o valor do crédito.');
+      return;
+    }
+
+    if (!validarPeriodoFinalUtil(this.periodo)) {
       this.notify.warning('Período inválido. Use MMYYYY, ex: 092025');
       return;
     }
@@ -76,7 +88,7 @@ export class NovoColaboradorComponent {
     try {
 
       const retorno = this.proAppCfg.insideProtheus()
-        ? await this.aguardarRetornoNovoColaborador(dados)
+        ? await this.novoColaboradorService.aguardarRetornoNovoColaborador(dados)
         : await this.novoColaboradorService.aguardarRetornoNovoColaboradorMock(dados);
 
       // --------------------------------------
@@ -108,49 +120,4 @@ export class NovoColaboradorComponent {
     }
   }
 
-
-  validarPeriodoFinal(): boolean {
-    const valor = this.periodo || '';
-    if (valor.length !== 6) return false;
-    return /^(0[1-9]|1[0-2])(19|20)\d{2}$/.test(valor);
-  }
-
-  aguardarRetornoNovoColaborador(payload: any): Promise<any> {
-    this.proAppAdvpl.jsToAdvpl('novoColaborador', JSON.stringify(payload));
-
-    return new Promise((resolve, reject) => {
-      const intervalo = setInterval(() => {
-        const item = localStorage.getItem('novoColaborador');
-
-        if (item) {
-          clearInterval(intervalo);
-          localStorage.removeItem('novoColaborador');
-
-          try {
-            const json = JSON.parse(item);
-
-            // 🔥 Garantir retorno padronizado
-            const retorno = {
-              code: json.code,
-              status: json.status,
-              mensagem: json.mensagem
-            };
-
-            if (json.status === 'OK') {
-              resolve(retorno);
-            } else {
-              reject(retorno);
-            }
-
-          } catch {
-            reject({
-              code: 500,
-              status: 'ERRO',
-              mensagem: 'Erro ao interpretar retorno!'
-            });
-          }
-        }
-      }, 100);
-    });
-  }
 }

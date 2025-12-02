@@ -5,10 +5,10 @@ import { ProAppConfigService } from '@totvs/protheus-lib-core';
 import { Subscription, filter } from 'rxjs';
 
 // Utils
-import { validarPeriodoFinal, formatarCpf, calcularSaldo } from '../utils/colaboradores-utils';
+import { validarPeriodoFinalUtil, formatarCpfUtil, calcularSaldoUtil } from '../utils/colaboradores-utils';
 
 // Helpers
-import { prepararNovoCredito, prepararEdicaoPeriodo, restaurarFormulario as limparForm } from '../helpers/colaboradores-modal.helper';
+import { prepararNovoCreditoHelper, prepararEdicaoPeriodoHelper, restaurarFormularioHelper as limparForm } from '../helpers/colaboradores-modal.helper';
 
 @Component({
   selector: 'colaboradores-list',
@@ -19,8 +19,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
   notify = inject(PoNotificationService);
   proAppCfg = inject(ProAppConfigService);
-  protheusService = inject(ColaboradoresListService);
-  private hiringService = inject(ColaboradoresListService);
+  colaboradoresService = inject(ColaboradoresListService);
 
   private subscription = new Subscription();
 
@@ -45,7 +44,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     this.isLoadingList = true;
 
     this.subscription.add(
-      this.hiringService.getListZBC()
+      this.colaboradoresService.getListZBC()
         .pipe(filter(l => !!l))
         .subscribe(lista => {
           this.collaborators = lista;
@@ -55,7 +54,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     );
 
     this.subscription.add(
-      this.hiringService.solicitarRecarregarLista$
+      this.colaboradoresService.solicitarRecarregarLista$
         .subscribe(() => this.recarregarLista())
     );
 
@@ -81,11 +80,11 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------
   carregarListaInicial() {
     if (this.proAppCfg.insideProtheus()) {
-      this.protheusService.aguardarLoadZBCLibCore().then(content =>
-        this.hiringService.loadZBCLibCore(content)
+      this.colaboradoresService.aguardarLoadZBCLibCore().then(content =>
+        this.colaboradoresService.loadZBCLibCore(content)
       );
     } else {
-      this.hiringService.loadZBC();
+      this.colaboradoresService.loadZBC();
     }
   }
 
@@ -108,7 +107,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   // ABRIR O MODAL DE NOVO CRÉDITO
   // --------------------------------------------------------------------
   abrirNovoCredito(item: any) {
-    prepararNovoCredito(this, item);
+    prepararNovoCreditoHelper(this, item);
   }
 
   // -----------------------------------------------------
@@ -143,14 +142,14 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   // ABRIR O MODAL DE EDITAR NOVO PERÍODO
   // --------------------------------------------------------------------
   abrirEditarNovoPeriodo(item: any, hist: any) {
-    prepararEdicaoPeriodo(this, item, hist);
+    prepararEdicaoPeriodoHelper(this, item, hist);
   }
 
   // --------------------------------------------------------------------
   // CHANGE DO VALOR 
   // --------------------------------------------------------------------
   onValorCreditoChange(value: any) {
-    this.saldo = calcularSaldo(value);
+    this.saldo = calcularSaldoUtil(value);
   }
 
   // --------------------------------------------------------------------
@@ -175,7 +174,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!validarPeriodoFinal(this.periodo)) {
+    if (!validarPeriodoFinalUtil(this.periodo)) {
       return this.notify.warning('Período inválido. Use MMYYYY.');
     }
 
@@ -194,14 +193,14 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
     try {
       const retorno = this.proAppCfg.insideProtheus()
-        ? await this.protheusService.aguardarRetornoCredito(dados)
-        : await this.hiringService.aguardarRetornoCreditoMock(dados);
+        ? await this.colaboradoresService.aguardarRetornoCredito(dados)
+        : await this.colaboradoresService.aguardarRetornoCreditoMock(dados);
 
       this.notify.success(retorno.mensagem);
       this.modalNovoCredito.close();
       limparForm(this);
 
-      this.hiringService.recarregarLista();
+      this.colaboradoresService.recarregarLista();
 
     } finally {
       this.isSaving = false;
@@ -212,6 +211,6 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   // FORMATAR CPF
   // --------------------------------------------------------------------
   formatarCpf(cpf: string) {
-    return formatarCpf(cpf);
+    return formatarCpfUtil(cpf);
   }
 }

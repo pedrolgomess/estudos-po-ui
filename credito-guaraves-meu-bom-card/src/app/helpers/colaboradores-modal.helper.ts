@@ -1,4 +1,4 @@
-export function prepararNovoCredito(component: any, item: any) {
+export function prepararNovoCreditoHelper(component: any, item: any) {
   component.selectedItem = item;
   component.periodo = '';
   component.valorCredito = null;
@@ -6,7 +6,7 @@ export function prepararNovoCredito(component: any, item: any) {
   component.modalNovoCredito.open();
 }
 
-export function prepararEdicaoPeriodo(component: any, item: any, hist: any) {
+export function prepararEdicaoPeriodoHelper(component: any, item: any, hist: any) {
   component.selectedItem = item;
   component.periodo = hist.periodo;
   component.valorCredito = hist.valor_credito;
@@ -14,7 +14,7 @@ export function prepararEdicaoPeriodo(component: any, item: any, hist: any) {
   component.modalEditarPeriodo.open();
 }
 
-export function restaurarFormulario(component: any) {
+export function restaurarFormularioHelper(component: any) {
   component.periodo = '';
   component.valorCredito = null;
   component.saldo = null;

@@ -76,6 +76,7 @@ export class ColaboradoresListService {
       }, 1500);
     });
   }
+
   recarregarLista() {
     this.solicitarRecarregarLista$.next(true);
   }
