@@ -82,9 +82,14 @@ export class ColaboradoresListService {
   }
   
   aguardarLoadZBCLibCore(): Promise<string> {
+    console.log('SELECIONANDO O this.proAppAdvpl.jsToAdvpl para fazer o loadZBCLibCore');
+
+    this.proAppAdvpl.jsToAdvpl('loadZBCLibCore', '');
+
     return new Promise(resolve => {
       const intervalo = setInterval(() => {
         const item = localStorage.getItem('loadZBCLibCore');
+        console.log('REALIZANDO GET ITEM DOS ITENS DO: loadZBCLibCore', item);
         if (item) {
           clearInterval(intervalo);
           resolve(item);

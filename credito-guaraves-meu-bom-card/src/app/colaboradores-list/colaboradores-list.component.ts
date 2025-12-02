@@ -3,7 +3,7 @@ import { PoModalComponent, PoNotificationService, PoListViewAction } from '@po-u
 import { ColaboradoresListService } from './colaboradores-list.service';
 import { ProAppConfigService } from '@totvs/protheus-lib-core';
 import { Subscription, filter } from 'rxjs';
-
+import { ProJsToAdvplService } from '@totvs/protheus-lib-core';
 // Utils
 import { validarPeriodoFinalUtil, formatarCpfUtil, calcularSaldoUtil } from '../utils/colaboradores-utils';
 
@@ -19,6 +19,7 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
   notify = inject(PoNotificationService);
   proAppCfg = inject(ProAppConfigService);
+  proAppAdvpl = inject(ProJsToAdvplService);
   colaboradoresService = inject(ColaboradoresListService);
 
   private subscription = new Subscription();
@@ -78,9 +79,9 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------
   // RECARREGAR A LISTA INICIAL
   // -----------------------------------------------------
-  carregarListaInicial() {
+  async carregarListaInicial() {
     if (this.proAppCfg.insideProtheus()) {
-      this.colaboradoresService.aguardarLoadZBCLibCore().then(content =>
+      await this.colaboradoresService.aguardarLoadZBCLibCore().then(content =>
         this.colaboradoresService.loadZBCLibCore(content)
       );
     } else {
