@@ -33,7 +33,7 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 				cListaAtualizada := fnLoadZBC()
 				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
 
-			Case oJsRetNo['code'] == 400
+			Case oJsRetNo['code'] == 422
 				oWebChannel:advplToJs('salvarCredito', oJsRetNo:toJson())
 
 			Case oJsRetNo['code'] == 409
@@ -57,7 +57,7 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 				cListaAtualizada := fnLoadZBC()
 				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
 
-			Case oJsRetNo['code'] == 400
+			Case oJsRetNo['code'] == 422
 				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
 
 			Case oJsRetNo['code'] == 404
@@ -173,9 +173,9 @@ Static Function NovoCred(oJson)
 	
 	// 1° Condição para validar o período
 	if Alltrim(cPeriodo) != Alltrim(cPerAtua)
-		oJsRet['code']		:= 400
+		oJsRet['code']		:= 422
 		oJsRet['status']	:= "ERRO"
-		oJsRet['mensagem']	:= "O período inserido: "+cPeriodo+ "é diferente do período atual: "+ cPerAtua
+		oJsRet['mensagem']	:= "O período inserido: "+cPeriodo+ " é diferente do período atual: "+ cPerAtua
 		Return oJsRet
 	endif
 	
@@ -218,9 +218,9 @@ Static Function NovoCola(oJson)
 
 	// 1° Condição para validar o período
 	if Alltrim(cPeriodo) != Alltrim(cPerAtua)
-		oJsRet['code']		:= 400
+		oJsRet['code']		:= 422
 		oJsRet['status']	:= "ERRO"
-		oJsRet['mensagem']	:= "O período inserido: "+cPeriodo+ "é diferente do período atual: "+ cPerAtua
+		oJsRet['mensagem']	:= "O período inserido: "+cPeriodo+ " é diferente do período atual: "+ cPerAtua
 		Return oJsRet
 	endif
 
