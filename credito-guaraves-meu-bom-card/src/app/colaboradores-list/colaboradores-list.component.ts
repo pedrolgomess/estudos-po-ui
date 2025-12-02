@@ -203,6 +203,8 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
 
       this.colaboradoresService.recarregarLista();
 
+    } catch (err: any) {
+      this.notify.error(err?.mensagem || 'Erro ao salvar crédito!');
     } finally {
       this.isSaving = false;
     }
