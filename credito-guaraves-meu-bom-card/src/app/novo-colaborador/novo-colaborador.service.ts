@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-
+import { ProJsToAdvplService } from '@totvs/protheus-lib-core';
 @Injectable({
     providedIn: 'root'
 })
 export class NovoColaboradorService {
-
+    constructor(private proAppAdvpl: ProJsToAdvplService){}
     // 🟢 MÉTODO MOCK — simula retorno
     aguardarRetornoNovoColaboradorMock(payload: any): Promise<any> {
         return new Promise(resolve => {
@@ -45,4 +45,42 @@ export class NovoColaboradorService {
         });
     }
 
+  aguardarRetornoNovoColaborador(payload: any): Promise<any> {
+    this.proAppAdvpl.jsToAdvpl('novoColaborador', JSON.stringify(payload));
+
+    return new Promise((resolve, reject) => {
+      const intervalo = setInterval(() => {
+        const item = localStorage.getItem('novoColaborador');
+
+        if (item) {
+          clearInterval(intervalo);
+          localStorage.removeItem('novoColaborador');
+
+          try {
+            const json = JSON.parse(item);
+
+            // 🔥 Garantir retorno padronizado
+            const retorno = {
+              code: json.code,
+              status: json.status,
+              mensagem: json.mensagem
+            };
+
+            if (json.status === 'OK') {
+              resolve(retorno);
+            } else {
+              reject(retorno);
+            }
+
+          } catch {
+            reject({
+              code: 500,
+              status: 'ERRO',
+              mensagem: 'Erro ao interpretar retorno!'
+            });
+          }
+        }
+      }, 100);
+    });
+  }
 }

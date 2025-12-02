@@ -6,6 +6,7 @@
   p-size="lg">
 </po-loading-overlay>
 
+<!-- LISTA DOS ITENS -->
 <po-list-view
     [p-hide-select-all]="true"
     p-property-link="url"
@@ -29,16 +30,41 @@
         <div
           class="po-md-12"
           *ngFor="let hist of item.historico"
-          style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px;"
+          style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 16px;"
         >
-          <po-info class="po-md-4" p-label="Período" [p-value]="hist.periodo"></po-info>
-          <po-info class="po-md-4" p-label="Crédito" [p-value]="(hist.valor_credito | currency:'BRL') ?? ''"></po-info>
-          <po-info class="po-md-4" p-label="Saldo" [p-value]="(hist.valor_saldo | currency:'BRL') ?? ''"></po-info>
+          <po-info class="po-md-3" p-label="Período" [p-value]="hist.periodo"></po-info>
+
+          <po-info class="po-md-3" p-label="Crédito" 
+                  [p-value]="(hist.valor_credito | currency:'BRL') ?? ''">
+          </po-info>
+
+          <po-info class="po-md-3" p-label="Saldo" 
+                  [p-value]="(hist.valor_saldo | currency:'BRL') ?? ''">
+          </po-info>
+
+          <!-- Ações com espaçamento elegante -->
+          <div class="po-md-3 actions-container">
+            <ng-container *ngIf="hist.periodo_atual">
+
+              <po-button
+                p-label="Editar Período"
+                (p-click)="abrirEditarNovoPeriodo(item, hist)">
+              </po-button>
+
+              <po-button
+                p-label="Excluir Período"
+                p-danger="true"
+                (p-click)="modalNovoCredito.close()">
+              </po-button>
+
+            </ng-container>
+          </div>
         </div>
       </div>
     </ng-template>
 </po-list-view>
 
+<!-- MODAL DE NOVO CRÉDITO -->
 <po-modal #modalNovoCredito p-title="Novo Crédito">
 
   <form #creditoForm="ngForm">
@@ -105,4 +131,72 @@
 
   </po-modal-footer>
 
+</po-modal>
+
+<!-- MODAL DE EDITAR PERÍODO -->
+<po-modal #modalEditarPeriodo p-title="Editar Período">
+  
+  <form #creditoForm="ngForm">
+
+    <div class="po-column">
+      <po-info p-label="Filial" [p-value]="selectedItem?.filial"></po-info>
+      <po-info p-label="Matrícula" [p-value]="selectedItem?.matricula"></po-info>
+      <po-info p-label="C.P.F" [p-value]="formatarCpf(selectedItem?.cpf)"></po-info>
+    </div>
+    <po-divider></po-divider>
+
+    <div class="po-row">
+
+      <po-input
+        class="po-md-6"
+        p-label="Novo Período"
+        name="periodo"
+        [(ngModel)]="periodo"
+        p-placeholder="Exemplo: 092025"
+        p-required>
+      </po-input>
+
+      <po-number
+        class="po-md-6"
+        p-label="Valor do Crédito"
+        name="valorCredito"
+        [(ngModel)]="valorCredito"
+        (ngModelChange)="onValorCreditoChange($event)"
+        p-required>
+      </po-number>
+
+    </div>
+
+    <div class="po-row">
+      <po-info
+        class="po-md-12"
+        p-label="Saldo"
+        [p-value]="(saldo | currency:'BRL') || ''">
+      </po-info>
+    </div>
+
+  </form>
+
+  <po-modal-footer [p-disabled-align]="false">
+
+    <po-button
+      p-label="Fechar"
+      p-danger="true"
+      (p-click)="modalEditarPeriodo.close()">
+    </po-button>
+
+    <po-button
+      p-label="Limpar"
+      (p-click)="restaurarFormulario()">
+    </po-button>
+
+    <po-button
+      p-kind="primary"
+      p-label="Salvar Crédito"
+      [p-loading]="isSaving"
+      [p-disabled]="isSaving"
+      (p-click)="salvarCredito()">
+    </po-button>
+
+  </po-modal-footer>
 </po-modal>

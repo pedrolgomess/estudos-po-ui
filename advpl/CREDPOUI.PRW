@@ -8,7 +8,7 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 	// cContent vem como JSON enviado pelo Angular
 	Local oJsNovoC 	:= JsonObject():New()
 	Local oJsRetNo	:= JsonObject():New()
-
+	Local oJsEdit	:= JsonObject():New()
 	Local cListaAtualizada := ''
 
     do case 
@@ -61,7 +61,15 @@ Static Function jsToAdvpl(oWebChannel, cType, cContent)
 				oWebChannel:advplToJs('novoColaborador', oJsRetNo:toJson())
 
 			EndCase
-
+		case cType == 'editarPeriodo'
+			oJsEdit:fromJson(cContent)	
+			// Retorno para o Angular
+			If EditPeri(oJsEdit)
+				oWebChannel:advplToJs('editarPeriodo', '{"status":"OK","mensagem":"Período Ajustado com sucesso"}')
+				// ?? AGORA DEVOLVE A LISTA ZBC ATUALIZADA
+				cListaAtualizada := fnLoadZBC()
+				oWebChannel:advplToJs('loadZBCLibCore', cListaAtualizada)
+			EndIf
     end case
     
 Return .T.
@@ -132,6 +140,7 @@ Static Function xGetHis(cFilZBC, cMatZBC)
             oJsonHist['periodo']		:= ZBC->ZBC_PERIOD
             oJsonHist['valor_credito']	:= ZBC->ZBC_VALCRD
             oJsonHist['valor_saldo']	:= ZBC->ZBC_SALDO
+			oJsonHist['periodo_atual']	:= IIF(ZBC->ZBC_PERIOD == xretAtua(), .T., .F.)
             //
             nToSaldo+=ZBC->ZBC_SALDO
             //
@@ -176,10 +185,12 @@ Static Function NovoCred(oJson)
 Return lOk
 
 Static Function NovoCola(oJson)
-    Local cFila    	 := oJson['filial']
-    Local cMatric    := oJson['matricula']
-    Local oJsRet	 := JsonObject():New()
-    
+    Local cFila    	:= oJson['filial']
+    Local cMatric   := oJson['matricula']
+	Local cPeriodo	:= oJson['periodo']
+    Local oJsRet	:= JsonObject():New()
+	Local cCpf		:= ''
+
 	// Etapa para buscar Na SRA e verificar se existe o colaborador dentro do Protheus
 	DbSelectArea("SRA")
 	SRA->(DbSetOrder(1))
@@ -202,17 +213,20 @@ Static Function NovoCola(oJson)
 			Return oJsRet
 
 		else
-			// RecLock("ZBC",.T.)
-			// 	ZBC->ZBC_FILIAL:= cFila
-			// 	ZBC->ZBC_MATRIC:= cMatric
-			// 	ZBC->ZBC_CLIENT:= oJson['client']
-			// 	ZBC->ZBC_LOJA  := oJson['loja']
-			// 	ZBC->ZBC_CIC   := oJson['cpf']
-			// 	ZBC->ZBC_VALCRD:= oJson['valorCredito']
-			// 	ZBC->ZBC_PERIOD:= cPeriodo
-			// 	ZBC->ZBC_SALDO := oJson['saldo']
-			// 	ZBC->ZBC_USRCRE:= CUSERNAME
-			// ZBC->(MsUnLock())
+			cCpf:= POSICIONE("SRA",1,cFila+cMatric,"RA_CIC")
+			
+			RecLock("ZBC",.T.)
+				ZBC_FILIAL	:= 	cFila
+				ZBC_MATRIC	:= 	cMatric
+				ZBC_CLIENT	:= 	POSICIONE("SA1",3,xFilial("SA1")+cCpf,"A1_COD")
+				ZBC_LOJA  	:=	POSICIONE("SA1",3,xFilial("SA1")+cCpf,"A1_LOJA")
+				ZBC_CIC   	:=	cCpf
+				ZBC_VALCRD	:=	oJson['valorCredito']
+				ZBC_PERIOD	:=	cPeriodo
+				ZBC_SALDO 	:=	oJson['saldo']
+				ZBC_USRCRE	:=	CUSERNAME
+				ZBC_NOME  	:=	POSICIONE("SA1",3,xFilial("SA1")+cCpf,"A1_NOME")
+			ZBC->(MsUnLock())
 
 			oJsRet['code']		:= 201
 			oJsRet['status']	:= "OK"
@@ -224,3 +238,41 @@ Static Function NovoCola(oJson)
 	endif
 
 Return
+
+Static Function xretAtua()
+
+    Local cAno  := ""
+    Local cMes  := ""
+
+    // --- Calcula o mês anterior ---
+    If Month(dDataBase) == 1
+        // Janeiro ? volta para Dezembro do ano anterior
+        cAno := cValToChar( Year(dDataBase) - 1 )
+        cMes := "12"
+    Else
+        // Apenas retorna o mês anterior dentro do mesmo ano
+        cAno := cValToChar( Year(dDataBase ) )
+        cMes := StrZero( Month(dDataBase) - 1 , 2 )
+    EndIf
+
+Return cMes+cAno
+
+Static Function EditPeri(oJson)
+
+    Local cFila    	 := oJson['filial']
+    Local cMatric    := oJson['matricula']
+    Local cPeriodo   := oJson['periodo']
+
+    Local lOk        := .T.
+    // Inserir um novo registro em ZBC010
+    DbSelectArea("ZBC")
+	ZBC->(DbSetOrder(4))
+	if ZBC->(DbSeek(cFila+cMatric+cPeriodo)) //Alterando o período atual
+		RecLock("ZBC",.F.)
+			ZBC->ZBC_VALCRD:= oJson['valorCredito']
+			ZBC->ZBC_SALDO := oJson['saldo']
+			ZBC->ZBC_USRCRE:= CUSERNAME
+		ZBC->(MsUnLock())
+	endif
+	
+Return lOk
