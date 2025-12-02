@@ -62,13 +62,23 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     this.carregarListaInicial();
   }
 
+  // -----------------------------------------------------
+  // FORMATAR TÍTULO
+  // -----------------------------------------------------
   formatTitle(item: any) {
     return `${item.nome} | Código: ${item.client} - ${item.loja}`;
   }
 
+  // -----------------------------------------------------
+  // MOSTRAR DETALHES
+  // -----------------------------------------------------
   showDetail() {
     return false;
   }
+
+  // -----------------------------------------------------
+  // RECARREGAR A LISTA INICIAL
+  // -----------------------------------------------------
   carregarListaInicial() {
     if (this.proAppCfg.insideProtheus()) {
       this.protheusService.aguardarLoadZBCLibCore().then(content =>
@@ -79,21 +89,28 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // -----------------------------------------------------
+  // RECARREGAR A LISTA INICIAL
+  // -----------------------------------------------------
   recarregarLista() {
     this.isLoadingList = true;
     this.carregarListaInicial();
   }
 
+  // -----------------------------------------------------
+  // NG DESTROY
+  // -----------------------------------------------------
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
   // --------------------------------------------------------------------
-  // MODAL
+  // ABRIR O MODAL DE NOVO CRÉDITO
   // --------------------------------------------------------------------
   abrirNovoCredito(item: any) {
     prepararNovoCredito(this, item);
   }
+
   // -----------------------------------------------------
   // AÇÕES
   // -----------------------------------------------------
@@ -111,6 +128,9 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     );
   }
 
+  // --------------------------------------------------------------------
+  // FILTRAR POR NOME OU MATRÍCULA
+  // --------------------------------------------------------------------
   filtrarBuscaAvancada(filters: any) {
     this.colaboradoresFiltrados = this.collaborators.filter(col => {
       const nomeOk = !filters.nome || col.nome.toLowerCase().includes(filters.nome.toLowerCase());
@@ -118,14 +138,24 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
       return nomeOk && matriculaOk;
     });
   }
+
+  // --------------------------------------------------------------------
+  // ABRIR O MODAL DE EDITAR NOVO PERÍODO
+  // --------------------------------------------------------------------
   abrirEditarNovoPeriodo(item: any, hist: any) {
     prepararEdicaoPeriodo(this, item, hist);
   }
 
+  // --------------------------------------------------------------------
+  // CHANGE DO VALOR 
+  // --------------------------------------------------------------------
   onValorCreditoChange(value: any) {
     this.saldo = calcularSaldo(value);
   }
 
+  // --------------------------------------------------------------------
+  // RESTAURAR FORMULÁRIO
+  // --------------------------------------------------------------------
   restaurarFormulario(){
     limparForm(this)
   }
@@ -178,6 +208,9 @@ export class ColaboradoresListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // --------------------------------------------------------------------
+  // FORMATAR CPF
+  // --------------------------------------------------------------------
   formatarCpf(cpf: string) {
     return formatarCpf(cpf);
   }
